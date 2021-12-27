@@ -13,10 +13,10 @@ import (
 type ClientService interface {
 	CreateClient(clientDTO dtos.ClientCreateDTO) (entities.Cliente, error)
 	UpdateClient(clientDTO dtos.ClientUpdateDTO) (entities.Cliente, error)
-	FindClientByID(clientID string) (entities.Cliente, error)
-	FindClientByName(name string) (entities.Cliente, error)
+	FindClientByID(clientID string) entities.Cliente
+	FindClientByName(name string) entities.Cliente
 	DeleteClient(client entities.Cliente) error
-	FindClients(clientName string, clientType string) ([]entities.Cliente, error)
+	FindClients(clientName string, clientType string) []entities.Cliente
 }
 
 type clientService struct {
@@ -56,11 +56,11 @@ func (service *clientService) UpdateClient(clientDTO dtos.ClientUpdateDTO) (enti
 	return client, nil
 }
 
-func (service *clientService) FindClientByID(clientID string) (entities.Cliente, error) {
+func (service *clientService) FindClientByID(clientID string) entities.Cliente {
 	return service.clientRepository.FindClientByID(clientID)
 }
 
-func (service *clientService) FindClientByName(name string) (entities.Cliente, error) {
+func (service *clientService) FindClientByName(name string) entities.Cliente {
 	return service.clientRepository.FindClientByName(name)
 }
 
@@ -68,7 +68,7 @@ func (service *clientService) DeleteClient(client entities.Cliente) error {
 	return service.clientRepository.DeleteClient(client)
 }
 
-func (service *clientService) FindClients(clientName string, clientType string) ([]entities.Cliente, error) {
+func (service *clientService) FindClients(clientName string, clientType string) []entities.Cliente {
 	return service.clientRepository.FindClients(clientName, clientType)
 }
 

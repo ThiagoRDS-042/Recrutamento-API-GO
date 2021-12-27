@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
@@ -12,10 +13,10 @@ import (
 type AddressRepository interface {
 	CreateAddress(address entities.Endereco) (entities.Endereco, error)
 	UpdateAddress(address entities.Endereco) (entities.Endereco, error)
-	FindAddressByID(addressID string) (entities.Endereco, error)
-	FindAddressByFields(street string, neighborhood string, number int) (entities.Endereco, error)
+	FindAddressByID(addressID string) entities.Endereco
+	FindAddressByFields(street string, neighborhood string, number int) entities.Endereco
 	DeleteAddress(address entities.Endereco) error
-	FindAddresses(street string, neighborhood string, number string) ([]entities.Endereco, error)
+	FindAddresses(street string, neighborhood string, number string) []entities.Endereco
 }
 
 type addressConnection struct {
@@ -40,27 +41,27 @@ func (db *addressConnection) UpdateAddress(address entities.Endereco) (entities.
 	return address, nil
 }
 
-func (db *addressConnection) FindAddressByID(addressID string) (entities.Endereco, error) {
+func (db *addressConnection) FindAddressByID(addressID string) entities.Endereco {
 	address := entities.Endereco{}
 
 	err := db.connection.First(&address, "id = ?", addressID).Error
 	if err != nil {
-		return address, err
+		log.Println(err.Error())
 	}
 
-	return address, nil
+	return address
 }
 
-func (db *addressConnection) FindAddressByFields(street string, neighborhood string, number int) (entities.Endereco, error) {
+func (db *addressConnection) FindAddressByFields(street string, neighborhood string, number int) entities.Endereco {
 	address := entities.Endereco{}
 
 	err := db.connection.Unscoped().First(&address, "logradouro = ? AND bairro = ? AND numero = ?",
 		street, neighborhood, number).Error
 	if err != nil {
-		return address, err
+		log.Println(err.Error())
 	}
 
-	return address, nil
+	return address
 }
 
 func (db *addressConnection) DeleteAddress(street entities.Endereco) error {
@@ -72,7 +73,7 @@ func (db *addressConnection) DeleteAddress(street entities.Endereco) error {
 	return nil
 }
 
-func (db *addressConnection) FindAddresses(street string, neighborhood string, number string) ([]entities.Endereco, error) {
+func (db *addressConnection) FindAddresses(street string, neighborhood string, number string) []entities.Endereco {
 	addresses := []entities.Endereco{}
 
 	street = fmt.Sprint("%", street, "%")
@@ -102,10 +103,10 @@ func (db *addressConnection) FindAddresses(street string, neighborhood string, n
 	}
 
 	if err != nil {
-		return addresses, err
+		log.Println(err.Error())
 	}
 
-	return addresses, nil
+	return addresses
 
 }
 

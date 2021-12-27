@@ -34,12 +34,7 @@ func (controller *clientController) CreateClient(ctx *gin.Context) {
 		return
 	}
 
-	clientAlreadyExists, err := controller.clientService.FindClientByName(clientDTO.Nome)
-	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
+	clientAlreadyExists, _ := controller.clientService.FindClientByName(clientDTO.Nome)
 
 	switch {
 	case clientAlreadyExists.DataRemocao.Valid:
@@ -50,8 +45,6 @@ func (controller *clientController) CreateClient(ctx *gin.Context) {
 		}
 
 		clientUpdateDTO.ID = clientAlreadyExists.ID
-
-		log.Println(clientUpdateDTO.Tipo)
 
 		client, err := controller.clientService.UpdateClient(clientUpdateDTO)
 		if err != nil {
@@ -107,7 +100,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 	if clientDTO.Nome == "" {
 		clientDTO.Nome = clientFound.Nome
 	} else {
-		if !entities.IsValidClientName(clientDTO.Nome) {
+		if !entities.IsValidTextLenght(clientDTO.Nome) {
 			response := utils.BuildErrorResponse("nome: " + utils.InvalidNumberOfCaracter)
 			ctx.JSON(http.StatusBadRequest, response)
 			return
@@ -124,12 +117,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 		}
 	}
 
-	clientAlreadyExists, err := controller.clientService.FindClientByName(clientDTO.Nome)
-	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
+	clientAlreadyExists, _ := controller.clientService.FindClientByName(clientDTO.Nome)
 
 	if (clientAlreadyExists != entities.Cliente{}) && (clientFound.ID != clientAlreadyExists.ID) {
 		response := utils.BuildErrorResponse(utils.NameAlreadyExists)
@@ -182,7 +170,12 @@ func (controller *clientController) DeleteClient(ctx *gin.Context) {
 		return
 	}
 
-	controller.clientService.DeleteClient(clientFound)
+	err = controller.clientService.DeleteClient(clientFound)
+	if err != nil {
+		response := utils.BuildErrorResponse(err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
 
 	ctx.JSON(http.StatusNoContent, entities.Cliente{})
 }

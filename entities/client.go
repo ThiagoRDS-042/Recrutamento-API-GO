@@ -1,11 +1,5 @@
 package entities
 
-import (
-	"time"
-
-	"gorm.io/gorm"
-)
-
 // ClientType representa o type ClientType.
 type ClientType string
 
@@ -18,17 +12,14 @@ const (
 
 // Cliente representa a tabela t_cliente no banco de dados.
 type Cliente struct {
-	ID              string         `json:"-" gorm:"type:uuid;primaryKey;default:uuid_generate_v4();not null"`
-	Nome            string         `json:"nome" gorm:"type:text;size:128;not null;unique"`
-	Tipo            ClientType     `json:"tipo" gorm:"not null"`
-	DataCriacao     time.Time      `json:"-" gorm:"not null"`
-	DataAtualizacao time.Time      `json:"-" gorm:"not null"`
-	DataRemocao     gorm.DeletedAt `json:"-" gorm:"index"`
+	Base
+	Nome string     `json:"nome" gorm:"type:text;size:128;not null;unique"`
+	Tipo ClientType `json:"tipo" gorm:"not null"`
 }
 
-// IsValidClientName verifica se o nome do cliente é valido.
-func IsValidClientName(clientName string) bool {
-	if len(clientName) < 3 || len(clientName) > 128 {
+// IsValidTextLenght verifica se o tamanho do texto é valido.
+func IsValidTextLenght(text string) bool {
+	if len(text) < 3 || len(text) > 128 {
 		return false
 	}
 

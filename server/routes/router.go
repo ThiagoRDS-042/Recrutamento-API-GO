@@ -8,6 +8,7 @@ import (
 // ConfigRoutes define as configurações das rotas.
 func ConfigRoutes(router *gin.Engine) *gin.Engine {
 	clientController := controllers.NewClientController()
+	addressController := controllers.NewAddressController()
 
 	main := router.Group("api/v1")
 	{
@@ -22,6 +23,19 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			client.PUT("/:id", clientController.UpdateClient)
 			client.GET("/:id", clientController.FindClientByID)
 			client.DELETE("/:id", clientController.DeleteClient)
+		}
+
+		addresses := main.Group("enderecos")
+		{
+			addresses.POST("/", addressController.CreateAddress)
+			addresses.GET("/", addressController.FindAddress)
+		}
+
+		address := main.Group("endereco")
+		{
+			address.PUT("/:id", addressController.UpdateAddress)
+			address.GET("/:id", addressController.FindAddressByID)
+			address.DELETE("/:id", addressController.DeleteAddress)
 		}
 	}
 

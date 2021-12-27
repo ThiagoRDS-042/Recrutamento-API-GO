@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
@@ -12,10 +13,10 @@ import (
 type ClientRepository interface {
 	CreateClient(client entities.Cliente) (entities.Cliente, error)
 	UpdateClient(client entities.Cliente) (entities.Cliente, error)
-	FindClientByID(clientID string) (entities.Cliente, error)
-	FindClientByName(name string) (entities.Cliente, error)
+	FindClientByID(clientID string) entities.Cliente
+	FindClientByName(name string) entities.Cliente
 	DeleteClient(client entities.Cliente) error
-	FindClients(clientName string, clientType string) ([]entities.Cliente, error)
+	FindClients(clientName string, clientType string) []entities.Cliente
 }
 
 type clientConnection struct {
@@ -40,26 +41,26 @@ func (db *clientConnection) UpdateClient(client entities.Cliente) (entities.Clie
 	return client, nil
 }
 
-func (db *clientConnection) FindClientByID(clientID string) (entities.Cliente, error) {
+func (db *clientConnection) FindClientByID(clientID string) entities.Cliente {
 	client := entities.Cliente{}
 
 	err := db.connection.First(&client, "id = ?", clientID).Error
 	if err != nil {
-		return client, err
+		log.Println(err.Error())
 	}
 
-	return client, nil
+	return client
 }
 
-func (db *clientConnection) FindClientByName(name string) (entities.Cliente, error) {
+func (db *clientConnection) FindClientByName(name string) entities.Cliente {
 	client := entities.Cliente{}
 
 	err := db.connection.Unscoped().First(&client, "nome = ?", name).Error
 	if err != nil {
-		return client, err
+		log.Println(err.Error())
 	}
 
-	return client, nil
+	return client
 }
 
 func (db *clientConnection) DeleteClient(client entities.Cliente) error {
@@ -71,7 +72,7 @@ func (db *clientConnection) DeleteClient(client entities.Cliente) error {
 	return nil
 }
 
-func (db *clientConnection) FindClients(clientName string, clientType string) ([]entities.Cliente, error) {
+func (db *clientConnection) FindClients(clientName string, clientType string) []entities.Cliente {
 	clients := []entities.Cliente{}
 
 	clientName = fmt.Sprint("%", clientName, "%")
@@ -90,10 +91,10 @@ func (db *clientConnection) FindClients(clientName string, clientType string) ([
 	}
 
 	if err != nil {
-		return clients, err
+		log.Println(err.Error())
 	}
 
-	return clients, nil
+	return clients
 }
 
 // NewClientRepository cria uma nova instancia de ClientRepository.

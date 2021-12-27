@@ -34,7 +34,7 @@ func (controller *clientController) CreateClient(ctx *gin.Context) {
 		return
 	}
 
-	clientAlreadyExists, _ := controller.clientService.FindClientByName(clientDTO.Nome)
+	clientAlreadyExists := controller.clientService.FindClientByName(clientDTO.Nome)
 
 	switch {
 	case clientAlreadyExists.DataRemocao.Valid:
@@ -82,12 +82,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 
 	clientID := ctx.Param("id")
 
-	clientFound, err := controller.clientService.FindClientByID(clientID)
-	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
+	clientFound := controller.clientService.FindClientByID(clientID)
 
 	if clientFound == (entities.Cliente{}) {
 		response := utils.BuildErrorResponse(utils.ClientNotFound)
@@ -117,7 +112,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 		}
 	}
 
-	clientAlreadyExists, _ := controller.clientService.FindClientByName(clientDTO.Nome)
+	clientAlreadyExists := controller.clientService.FindClientByName(clientDTO.Nome)
 
 	if (clientAlreadyExists != entities.Cliente{}) && (clientFound.ID != clientAlreadyExists.ID) {
 		response := utils.BuildErrorResponse(utils.NameAlreadyExists)
@@ -138,12 +133,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 func (controller *clientController) FindClientByID(ctx *gin.Context) {
 	clientID := ctx.Param("id")
 
-	clientFound, err := controller.clientService.FindClientByID(clientID)
-	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
+	clientFound := controller.clientService.FindClientByID(clientID)
 
 	if clientFound == (entities.Cliente{}) {
 		response := utils.BuildErrorResponse(utils.ClientNotFound)
@@ -157,12 +147,7 @@ func (controller *clientController) FindClientByID(ctx *gin.Context) {
 func (controller *clientController) DeleteClient(ctx *gin.Context) {
 	clientID := ctx.Param("id")
 
-	clientFound, err := controller.clientService.FindClientByID(clientID)
-	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
+	clientFound := controller.clientService.FindClientByID(clientID)
 
 	if clientFound == (entities.Cliente{}) {
 		response := utils.BuildErrorResponse(utils.ClientNotFound)
@@ -170,7 +155,7 @@ func (controller *clientController) DeleteClient(ctx *gin.Context) {
 		return
 	}
 
-	err = controller.clientService.DeleteClient(clientFound)
+	err := controller.clientService.DeleteClient(clientFound)
 	if err != nil {
 		response := utils.BuildErrorResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
@@ -184,12 +169,7 @@ func (controller *clientController) FindClients(ctx *gin.Context) {
 	clientType := ctx.Query("tipo")
 	clientName := ctx.Query("nome")
 
-	clients, err := controller.clientService.FindClients(clientName, clientType)
-	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
+	clients := controller.clientService.FindClients(clientName, clientType)
 
 	if len(clients) == 0 {
 		response := utils.BuildErrorResponse(utils.ClientNotFound)

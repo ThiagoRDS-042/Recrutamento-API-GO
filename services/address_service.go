@@ -13,10 +13,10 @@ import (
 type AddressService interface {
 	CreateAddress(addressDTO dtos.AddressCreateDTO) (entities.Endereco, error)
 	UpdateAddress(addressDTO dtos.AddressUpdateDTO) (entities.Endereco, error)
-	FindAddressByID(addressID string) (entities.Endereco, error)
-	FindAddressByFields(street string, neighborhood string, number int) (entities.Endereco, error)
+	FindAddressByID(addressID string) entities.Endereco
+	FindAddressByFields(street string, neighborhood string, number int) entities.Endereco
 	DeleteAddress(address entities.Endereco) error
-	FindAddresses(street string, neighborhood string, number string) ([]entities.Endereco, error)
+	FindAddresses(street string, neighborhood string, number string) []entities.Endereco
 }
 
 type addressService struct {
@@ -49,6 +49,7 @@ func (service *addressService) UpdateAddress(addressDTO dtos.AddressUpdateDTO) (
 
 	address.ID = addressDTO.ID
 	address.DataRemocao.Scan(nil)
+
 	address, err = service.addressRepository.UpdateAddress(address)
 	if err != nil {
 		return address, err
@@ -57,11 +58,11 @@ func (service *addressService) UpdateAddress(addressDTO dtos.AddressUpdateDTO) (
 	return address, nil
 }
 
-func (service *addressService) FindAddressByID(addressID string) (entities.Endereco, error) {
+func (service *addressService) FindAddressByID(addressID string) entities.Endereco {
 	return service.addressRepository.FindAddressByID(addressID)
 }
 
-func (service *addressService) FindAddressByFields(street string, neighborhood string, number int) (entities.Endereco, error) {
+func (service *addressService) FindAddressByFields(street string, neighborhood string, number int) entities.Endereco {
 	return service.addressRepository.FindAddressByFields(street, neighborhood, number)
 }
 
@@ -69,7 +70,7 @@ func (service *addressService) DeleteAddress(address entities.Endereco) error {
 	return service.addressRepository.DeleteAddress(address)
 }
 
-func (service *addressService) FindAddresses(street string, neighborhood string, number string) ([]entities.Endereco, error) {
+func (service *addressService) FindAddresses(street string, neighborhood string, number string) []entities.Endereco {
 	return service.addressRepository.FindAddresses(street, neighborhood, number)
 }
 

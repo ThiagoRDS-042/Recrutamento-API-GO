@@ -4,6 +4,14 @@
 *.dll
 *.so
 *.dylib
+
+.idea
+vendor
+.vscode
+.DS_Store
+
+tmp
+go.sum
 .env
 
 # Test binary, built with `go test -c`

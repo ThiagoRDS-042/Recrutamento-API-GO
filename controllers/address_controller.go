@@ -23,6 +23,7 @@ type AddressController interface {
 
 type addressController struct {
 	addressService services.AddressService
+	pointService   services.PointService
 }
 
 func (controller *addressController) CreateAddress(ctx *gin.Context) {
@@ -168,6 +169,13 @@ func (controller *addressController) DeleteAddress(ctx *gin.Context) {
 		return
 	}
 
+	err = controller.pointService.DeletePointsByAddressID(addressFound.ID)
+	if err != nil {
+		response := utils.BuildErrorResponse(err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
 	ctx.JSON(http.StatusNoContent, entities.Endereco{})
 }
 
@@ -196,5 +204,6 @@ func (controller *addressController) FindAddress(ctx *gin.Context) {
 func NewAddressController() AddressController {
 	return &addressController{
 		addressService: services.NewAddressService(),
+		pointService:   services.NewPointService(),
 	}
 }

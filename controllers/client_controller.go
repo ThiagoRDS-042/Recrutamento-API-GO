@@ -23,6 +23,7 @@ type ClientController interface {
 
 type clientController struct {
 	clientService services.ClientService
+	pointService  services.PointService
 }
 
 func (controller *clientController) CreateClient(ctx *gin.Context) {
@@ -162,6 +163,13 @@ func (controller *clientController) DeleteClient(ctx *gin.Context) {
 		return
 	}
 
+	err = controller.pointService.DeletePointsByClientID(clientFound.ID)
+	if err != nil {
+		response := utils.BuildErrorResponse(err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
 	ctx.JSON(http.StatusNoContent, entities.Cliente{})
 }
 
@@ -188,5 +196,6 @@ func (controller *clientController) FindClients(ctx *gin.Context) {
 func NewClientController() ClientController {
 	return &clientController{
 		clientService: services.NewClientService(),
+		pointService:  services.NewPointService(),
 	}
 }

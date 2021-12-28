@@ -8,4 +8,6 @@ const (
 	InvalidClientType       = "Invalid client type"
 	AddressAlreadyExists    = "Address already exists"
 	AddressNotFound         = "Address not found"
+	PointNotFound           = "Point not found"
+	PointAlreadyExists      = "Point already exists"
 )

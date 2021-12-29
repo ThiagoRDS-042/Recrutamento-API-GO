@@ -72,11 +72,27 @@ func (service *pointService) DeletePoint(point entities.Ponto) error {
 }
 
 func (service *pointService) DeletePointsByClientID(clientID string) error {
-	return service.pointRepository.DeletePointsByClientID(clientID)
+	points := service.pointRepository.FindPointsByClientID(clientID)
+
+	var err error
+
+	for _, point := range points {
+		err = service.pointRepository.DeletePoint(point)
+	}
+
+	return err
 }
 
 func (service *pointService) DeletePointsByAddressID(addressID string) error {
-	return service.pointRepository.DeletePointsByAddressID(addressID)
+	points := service.pointRepository.FindPointsByAddressID(addressID)
+
+	var err error
+
+	for _, point := range points {
+		err = service.pointRepository.DeletePoint(point)
+	}
+
+	return err
 }
 
 func (service *pointService) FindPoints(clientID string, addressID string) []entities.Ponto {

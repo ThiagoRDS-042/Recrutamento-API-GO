@@ -10,4 +10,7 @@ const (
 	AddressNotFound         = "Address not found"
 	PointNotFound           = "Point not found"
 	PointAlreadyExists      = "Point already exists"
+	ContractAlreadyExists   = "Contract already exists"
+	ContractNotFound        = "Contract not found"
+	Unathorized             = "Unathorized"
 )

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
@@ -98,26 +99,21 @@ func (db *pointConnection) DeletePoint(point entities.Ponto) error {
 func (db *pointConnection) FindPoints(clientID string, addressID string) []entities.Ponto {
 	points := []entities.Ponto{}
 
-	var err error
+	var sqlQuery string
 
-	switch {
-	case clientID != "" && addressID != "":
-		err = db.connection.Preload("Cliente").Preload("Endereco").
-			Find(&points, "cliente_id = ? AND endereco_id = ?", clientID, addressID).Error
-
-	case clientID != "":
-		err = db.connection.Preload("Cliente").Preload("Endereco").
-			Find(&points, "cliente_id = ?", clientID).Error
-
-	case addressID != "":
-		err = db.connection.Preload("Cliente").Preload("Endereco").
-			Find(&points, "endereco_id = ?", addressID).Error
-
-	default:
-		err = db.connection.Preload("Cliente").Preload("Endereco").
-			Find(&points).Error
+	if clientID != "" {
+		sqlQuery += fmt.Sprintf("cliente_id = '%v' ", clientID)
+	} else {
+		sqlQuery += "NOT cliente_id IS NULL "
 	}
 
+	if addressID != "" {
+		sqlQuery += fmt.Sprintf("AND endereco_id = '%v' ", addressID)
+	} else {
+		sqlQuery += "AND NOT endereco_id IS NULL"
+	}
+
+	err := db.connection.Preload("Cliente").Preload("Endereco").Find(&points, sqlQuery).Error
 	if err != nil {
 		log.Println(err.Error())
 	}

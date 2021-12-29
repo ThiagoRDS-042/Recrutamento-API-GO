@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
@@ -74,29 +75,22 @@ func (db *contractConnection) DeleteContract(contract entities.Contrato) error {
 func (db *contractConnection) FindContracts(clientID string, addressID string) []entities.Contrato {
 	contracts := []entities.Contrato{}
 
-	var err error
+	var sqlQuery = "JOIN t_ponto ON t_ponto.id = t_contrato.ponto_id "
 
-	switch {
-	case clientID != "" && addressID != "":
-		err = db.connection.Preload("Ponto.Cliente").Preload("Ponto.Endereco").
-			Joins("JOIN t_ponto ON t_ponto.id = t_contrato.ponto_id AND t_ponto.cliente_id = ? AND t_ponto.endereco_id = ?",
-				clientID, addressID).Find(&contracts).Error
-
-	case clientID != "":
-		err = db.connection.Preload("Ponto.Cliente").Preload("Ponto.Endereco").
-			Joins("JOIN t_ponto ON t_ponto.id = t_contrato.ponto_id AND t_ponto.cliente_id = ?", clientID).
-			Find(&contracts).Error
-
-	case addressID != "":
-		err = db.connection.Preload("Ponto.Cliente").Preload("Ponto.Endereco").
-			Joins("JOIN t_ponto ON t_ponto.id = t_contrato.ponto_id AND t_ponto.endereco_id = ?", addressID).
-			Find(&contracts).Error
-
-	default:
-		err = db.connection.Preload("Ponto.Cliente").Preload("Ponto.Endereco").
-			Find(&contracts).Error
+	if clientID != "" {
+		sqlQuery += fmt.Sprintf("AND t_ponto.cliente_id = '%v' ", clientID)
+	} else {
+		sqlQuery += "AND NOT t_ponto.cliente_id IS NULL "
 	}
 
+	if addressID != "" {
+		sqlQuery += fmt.Sprintf("AND t_ponto.endereco_id = '%v'", addressID)
+	} else {
+		sqlQuery += "AND NOT t_ponto.endereco_id IS NULL"
+	}
+
+	err := db.connection.Preload("Ponto.Cliente").Preload("Ponto.Endereco").
+		Joins(sqlQuery).Find(&contracts).Error
 	if err != nil {
 		log.Println(err.Error())
 	}

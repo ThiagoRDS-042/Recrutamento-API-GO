@@ -20,9 +20,10 @@ type PointController interface {
 }
 
 type pointController struct {
-	pointService   services.PointService
-	clientService  services.ClientService
-	addressService services.AddressService
+	pointService    services.PointService
+	clientService   services.ClientService
+	addressService  services.AddressService
+	contractService services.ContractService
 }
 
 func (controller *pointController) CreatePoint(ctx *gin.Context) {
@@ -103,6 +104,13 @@ func (controller *pointController) DeletePoint(ctx *gin.Context) {
 		return
 	}
 
+	err = controller.contractService.DeleteContractByPontoID(pointFound.ID)
+	if err != nil {
+		response := utils.BuildErrorResponse(err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
 	ctx.JSON(http.StatusNoContent, entities.Cliente{})
 }
 
@@ -134,8 +142,9 @@ func (controller *pointController) FindPoints(ctx *gin.Context) {
 // NewPointController cria uma nova isnancia de PointController.
 func NewPointController() PointController {
 	return &pointController{
-		pointService:   services.NewPointService(),
-		clientService:  services.NewClientService(),
-		addressService: services.NewAddressService(),
+		pointService:    services.NewPointService(),
+		clientService:   services.NewClientService(),
+		addressService:  services.NewAddressService(),
+		contractService: services.NewContractService(),
 	}
 }

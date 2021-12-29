@@ -76,32 +76,29 @@ func (db *addressConnection) DeleteAddress(street entities.Endereco) error {
 func (db *addressConnection) FindAddresses(street string, neighborhood string, number string) []entities.Endereco {
 	addresses := []entities.Endereco{}
 
-	street = fmt.Sprint("%", street, "%")
-	neighborhood = fmt.Sprint("%", neighborhood, "%")
+	var sqlQuery string
 
-	var err error
-
-	switch {
-	case street != "" && neighborhood != "" && number != "":
-		err = db.connection.Find(&addresses, "logradouro LIKE ? AND bairro LIKE ? AND numero = ?",
-			street, neighborhood, number).Error
-
-	case street != "" && neighborhood != "":
-		err = db.connection.Find(&addresses, "logradouro LIKE ? AND bairro LIKE ?",
-			street, neighborhood).Error
-
-	case neighborhood != "" && number != "":
-		err = db.connection.Find(&addresses, "bairro LIKE ? AND numero = ?",
-			neighborhood, number).Error
-
-	case street != "" && number != "":
-		err = db.connection.Find(&addresses, "logradouro LIKE ? AND numero = ?",
-			street, number).Error
-
-	default:
-		err = db.connection.Find(&addresses).Error
+	if street != "" {
+		street = fmt.Sprint("%", street, "%")
+		sqlQuery += fmt.Sprintf("logradouro LIKE '%v' ", street)
+	} else {
+		sqlQuery += "NOT logradouro IS NULL "
 	}
 
+	if neighborhood != "" {
+		neighborhood = fmt.Sprint("%", neighborhood, "%")
+		sqlQuery += fmt.Sprintf("AND bairro LIKE '%v' ", neighborhood)
+	} else {
+		sqlQuery += "AND NOT bairro IS NULL "
+	}
+
+	if number != "" {
+		sqlQuery += fmt.Sprintf("AND numero = '%v'", number)
+	} else {
+		sqlQuery += "AND NOT numero IS NULL"
+	}
+
+	err := db.connection.Find(&addresses, sqlQuery).Error
 	if err != nil {
 		log.Println(err.Error())
 	}

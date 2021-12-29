@@ -64,6 +64,7 @@ func (db *clientConnection) FindClientByName(name string) entities.Cliente {
 }
 
 func (db *clientConnection) DeleteClient(client entities.Cliente) error {
+
 	err := db.connection.Delete(&client).Error
 	if err != nil {
 		return err
@@ -75,23 +76,22 @@ func (db *clientConnection) DeleteClient(client entities.Cliente) error {
 func (db *clientConnection) FindClients(clientName string, clientType string) []entities.Cliente {
 	clients := []entities.Cliente{}
 
+	var sqlQuery string
+
 	if clientName != "" {
 		clientName = fmt.Sprint("%", clientName, "%")
+		sqlQuery += fmt.Sprintf("nome LIKE '%v' ", clientName)
+	} else {
+		sqlQuery += "NOT nome IS NULL "
 	}
 
-	var err error
-
-	switch {
-	case clientName != "" && clientType != "":
-		err = db.connection.Find(&clients, "nome LIKE ? AND tipo = ?", clientName, clientType).Error
-	case clientName != "":
-		err = db.connection.Find(&clients, "nome LIKE ?", clientName).Error
-	case clientType != "":
-		err = db.connection.Find(&clients, "tipo = ?", clientType).Error
-	default:
-		err = db.connection.Find(&clients).Error
+	if clientType != "" {
+		sqlQuery += fmt.Sprintf("AND tipo = '%v'", clientType)
+	} else {
+		sqlQuery += "AND NOT tipo IS NULL"
 	}
 
+	err := db.connection.Find(&clients, sqlQuery).Error
 	if err != nil {
 		log.Println(err.Error())
 	}

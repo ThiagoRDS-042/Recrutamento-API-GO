@@ -16,7 +16,7 @@ type ContractService interface {
 	FindContractByID(contractID string) entities.Contrato
 	FindContractByPontoID(pontoID string) entities.Contrato
 	DeleteContract(contract entities.Contrato) error
-	DeleteContractsByPontoID(pontoID string) error
+	DeleteContractByPontoID(pontoID string) error
 	FindContracts(clientID string, addressID string) []entities.Contrato
 }
 
@@ -70,7 +70,7 @@ func (service *contractService) DeleteContract(contract entities.Contrato) error
 	return service.contractRepository.DeleteContract(contract)
 }
 
-func (service *contractService) DeleteContractsByPontoID(pontoID string) error {
+func (service *contractService) DeleteContractByPontoID(pontoID string) error {
 	contract := service.contractRepository.FindContractByPontoID(pontoID)
 
 	return service.contractRepository.DeleteContract(contract)

@@ -23,6 +23,7 @@ type PointService interface {
 
 type pointService struct {
 	pointRepository repositories.PointRepository
+	contractService ContractService
 }
 
 func (service *pointService) CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, error) {
@@ -78,6 +79,14 @@ func (service *pointService) DeletePointsByClientID(clientID string) error {
 
 	for _, point := range points {
 		err = service.pointRepository.DeletePoint(point)
+		if err != nil {
+			return err
+		}
+
+		err = service.contractService.DeleteContractByPontoID(point.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return err
@@ -90,6 +99,14 @@ func (service *pointService) DeletePointsByAddressID(addressID string) error {
 
 	for _, point := range points {
 		err = service.pointRepository.DeletePoint(point)
+		if err != nil {
+			return err
+		}
+
+		err = service.contractService.DeleteContractByPontoID(point.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return err
@@ -103,5 +120,6 @@ func (service *pointService) FindPoints(clientID string, addressID string) []ent
 func NewPointService() PointService {
 	return &pointService{
 		pointRepository: repositories.NewPointRepository(),
+		contractService: NewContractService(),
 	}
 }

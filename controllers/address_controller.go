@@ -97,7 +97,7 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 	if addressDTO.Logradouro == "" {
 		addressDTO.Logradouro = addressFound.Logradouro
 	} else {
-		if !entities.IsValidTextLenght(addressDTO.Logradouro) {
+		if !dtos.IsValidTextLenght(addressDTO.Logradouro) {
 			response := utils.BuildErrorResponse("logradouro: " + utils.InvalidNumberOfCaracter)
 			ctx.JSON(http.StatusBadRequest, response)
 			return
@@ -107,7 +107,7 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 	if addressDTO.Bairro == "" {
 		addressDTO.Bairro = addressFound.Bairro
 	} else {
-		if !entities.IsValidTextLenght(addressDTO.Bairro) {
+		if !dtos.IsValidTextLenght(addressDTO.Bairro) {
 			response := utils.BuildErrorResponse("bairro: " + utils.InvalidNumberOfCaracter)
 			ctx.JSON(http.StatusBadRequest, response)
 			return

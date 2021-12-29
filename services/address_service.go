@@ -47,7 +47,6 @@ func (service *addressService) UpdateAddress(addressDTO dtos.AddressUpdateDTO) (
 		log.Fatalf("failed to map: %v", err)
 	}
 
-	address.ID = addressDTO.ID
 	address.DataRemocao.Scan(nil)
 
 	address, err = service.addressRepository.UpdateAddress(address)

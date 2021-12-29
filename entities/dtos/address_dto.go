@@ -9,7 +9,7 @@ type AddressCreateDTO struct {
 
 // AddressUpdateDTO representa o modelo usado para atualizar endereços.
 type AddressUpdateDTO struct {
-	ID         string `json:"id" form:"id"`
+	Base
 	Logradouro string `json:"logradouro" form:"logradouro"`
 	Bairro     string `json:"bairro" form:"bairro"`
 	Numero     int    `json:"numero" gorm:"type:smallint"`

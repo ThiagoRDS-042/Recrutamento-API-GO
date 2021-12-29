@@ -10,7 +10,16 @@ type ClientCreateDTO struct {
 
 // ClientUpdateDTO representa o modelo usado para atualizar clientes.
 type ClientUpdateDTO struct {
-	ID   string              `json:"id" form:"id"`
+	Base `json:"base" form:"base"`
 	Nome string              `json:"nome" form:"nome"`
 	Tipo entities.ClientType `json:"tipo" form:"tipo"`
+}
+
+// IsValidClientType verifica se o tipo de cliente e valido.
+func IsValidClientType(clientType entities.ClientType) bool {
+	if clientType != entities.FISICO && clientType != entities.ESPECIAL && clientType != entities.JURIDICO {
+		return false
+	}
+
+	return true
 }

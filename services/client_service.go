@@ -47,7 +47,6 @@ func (service *clientService) UpdateClient(clientDTO dtos.ClientUpdateDTO) (enti
 		log.Fatalf("failed to map: %v", err)
 	}
 
-	client.ID = clientDTO.ID
 	client.DataRemocao.Scan(nil)
 
 	client, err = service.clientRepository.UpdateClient(client)

@@ -96,7 +96,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 	if clientDTO.Nome == "" {
 		clientDTO.Nome = clientFound.Nome
 	} else {
-		if !entities.IsValidTextLenght(clientDTO.Nome) {
+		if !dtos.IsValidTextLenght(clientDTO.Nome) {
 			response := utils.BuildErrorResponse("nome: " + utils.InvalidNumberOfCaracter)
 			ctx.JSON(http.StatusBadRequest, response)
 			return
@@ -106,7 +106,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 	if clientDTO.Tipo == "" {
 		clientDTO.Tipo = clientFound.Tipo
 	} else {
-		if !entities.IsValidClientType(clientDTO.Tipo) {
+		if !dtos.IsValidClientType(clientDTO.Tipo) {
 			response := utils.BuildErrorResponse("tipo: " + utils.InvalidClientType)
 			ctx.JSON(http.StatusBadRequest, response)
 			return

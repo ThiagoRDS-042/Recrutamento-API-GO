@@ -49,7 +49,6 @@ func (service *pointService) UpdatePoint(pointDTO dtos.PointUpdateDTO) (entities
 		log.Fatalf("failed to map: %v", err)
 	}
 
-	point.ID = pointDTO.ID
 	point.DataRemocao.Scan(nil)
 
 	point, err = service.pointRepository.UpdatePoint(point)

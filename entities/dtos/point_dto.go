@@ -10,7 +10,7 @@ type PointCreateDTO struct {
 
 // PointUpdateDTO representa o modelo usado para atualizar pontos.
 type PointUpdateDTO struct {
-	ID         string `json:"id" form:"id"`
+	Base
 	ClienteID  string `json:"cliente_id" form:"cliente_id"`
 	EnderecoID string `json:"endereco_id" form:"endereco_id"`
 }

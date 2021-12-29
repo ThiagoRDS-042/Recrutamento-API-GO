@@ -22,8 +22,9 @@ type ContractController interface {
 }
 
 type contractController struct {
-	contractService services.ContractService
-	pontoService    services.PointService
+	contractService      services.ContractService
+	contractEventService services.ContractEventService
+	pontoService         services.PointService
 }
 
 func (controller *contractController) CreateContract(ctx *gin.Context) {
@@ -62,6 +63,19 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 			return
 		}
 
+		contractEventDTO := dtos.ContratoEventCreateDTO{
+			ContratoID:      contract.ID,
+			EstadoAnterior:  contract.Estado,
+			EstadoPosterior: contract.Estado,
+		}
+
+		_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
+		if err != nil {
+			response := utils.BuildErrorResponse(err.Error())
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+
 		ctx.JSON(http.StatusCreated, contract)
 
 	case (contractAlreadyExists != entities.Contrato{}):
@@ -70,6 +84,19 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 
 	default:
 		contract, err := controller.contractService.CreateContract(contractDTO)
+		if err != nil {
+			response := utils.BuildErrorResponse(err.Error())
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+
+		contractEventDTO := dtos.ContratoEventCreateDTO{
+			ContratoID:      contract.ID,
+			EstadoAnterior:  contract.Estado,
+			EstadoPosterior: contract.Estado,
+		}
+
+		_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
 		if err != nil {
 			response := utils.BuildErrorResponse(err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
@@ -112,6 +139,19 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 	}
 
 	contract, err := controller.contractService.UpdateContract(contractDTO)
+	if err != nil {
+		response := utils.BuildErrorResponse(err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	contractEventDTO := dtos.ContratoEventCreateDTO{
+		ContratoID:      contract.ID,
+		EstadoAnterior:  contractFound.Estado,
+		EstadoPosterior: contract.Estado,
+	}
+
+	_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
 	if err != nil {
 		response := utils.BuildErrorResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
@@ -186,7 +226,8 @@ func (controller *contractController) FindContracts(ctx *gin.Context) {
 // NewContractController cria uma nova isnancia de ContractController.
 func NewContractController() ContractController {
 	return &contractController{
-		contractService: services.NewContractService(),
-		pontoService:    services.NewPointService(),
+		contractService:      services.NewContractService(),
+		contractEventService: services.NewContractEventService(),
+		pontoService:         services.NewPointService(),
 	}
 }

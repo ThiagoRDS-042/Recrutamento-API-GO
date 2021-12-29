@@ -27,7 +27,7 @@ type PointResponse struct {
 	EnderecoNumero     int                 `json:"endereco_numero"`
 }
 
-// CreatePointResponse cria a responsta modela para a pesquisa de pontos.
+// CreatePointResponse cria a responsta modelada para a pesquisa de pontos.
 func CreatePointResponse(point entities.Ponto) PointResponse {
 	pointResponse := PointResponse{
 		ID:                 point.ID,

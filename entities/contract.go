@@ -1,5 +1,7 @@
 package entities
 
+import "gorm.io/gorm"
+
 // ContractState representa o type ContractState.
 type ContractState string
 
@@ -13,7 +15,8 @@ const (
 // Contrato representa a tabela t_contrato no banco de dados.
 type Contrato struct {
 	Base
-	Estado  ContractState `json:"-" gorm:"not null"`
-	PontoID string        `json:"ponto_id" gorm:"not null"`
-	Ponto   Ponto         `json:"-" gorm:"foreignKey:PontoID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Estado      ContractState  `json:"-" gorm:"not null"`
+	PontoID     string         `json:"ponto_id" gorm:"type:uuid;not null"`
+	Ponto       Ponto          `json:"-" gorm:"foreignKey:PontoID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	DataRemocao gorm.DeletedAt `json:"-" gorm:"index"`
 }

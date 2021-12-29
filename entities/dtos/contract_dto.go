@@ -1,6 +1,8 @@
 package dtos
 
-import "github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
+import (
+	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
+)
 
 // EM_VIGOR        ContractState = "Em vigor"
 // DESATIVADO_TEMP ContractState = "Desativado Temporario"
@@ -45,7 +47,7 @@ func IsAuthorized(oldState entities.ContractState, newState entities.ContractSta
 	}
 }
 
-// CreateContractResponse cria a responsta modela para a pesquisa de contratos.
+// CreateContractResponse cria a responsta modelada para a pesquisa de contratos.
 func CreateContractResponse(contrat entities.Contrato) ContractResponse {
 	contractResponse := ContractResponse{
 		ID:                 contrat.ID,

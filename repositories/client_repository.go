@@ -75,7 +75,9 @@ func (db *clientConnection) DeleteClient(client entities.Cliente) error {
 func (db *clientConnection) FindClients(clientName string, clientType string) []entities.Cliente {
 	clients := []entities.Cliente{}
 
-	clientName = fmt.Sprint("%", clientName, "%")
+	if clientName != "" {
+		clientName = fmt.Sprint("%", clientName, "%")
+	}
 
 	var err error
 

@@ -27,21 +27,17 @@ type PointResponse struct {
 	EnderecoNumero     int                 `json:"endereco_numero"`
 }
 
-func CreatePointResponse(points []entities.Ponto) []PointResponse {
-	pointsResponse := []PointResponse{}
+// CreatePointResponse cria a responsta modela para a pesquisa de pontos.
+func CreatePointResponse(point entities.Ponto) PointResponse {
+	pointResponse := PointResponse{
+		ID:                 point.ID,
+		ClienteID:          point.ClienteID,
+		ClienteNome:        point.Cliente.Nome,
+		ClienteTipo:        point.Cliente.Tipo,
+		EnderecoID:         point.EnderecoID,
+		EnderecoLogradouro: point.Endereco.Logradouro,
+		EnderecoBairro:     point.Endereco.Bairro,
+		EnderecoNumero:     point.Endereco.Numero}
 
-	for _, point := range points {
-		pointsResponse = append(pointsResponse, PointResponse{
-			ID:                 point.ID,
-			ClienteID:          point.ClienteID,
-			ClienteNome:        point.Cliente.Nome,
-			ClienteTipo:        point.Cliente.Tipo,
-			EnderecoID:         point.EnderecoID,
-			EnderecoLogradouro: point.Endereco.Logradouro,
-			EnderecoBairro:     point.Endereco.Bairro,
-			EnderecoNumero:     point.Endereco.Numero,
-		})
-	}
-
-	return pointsResponse
+	return pointResponse
 }

@@ -14,9 +14,9 @@ type PointRepository interface {
 	UpdatePoint(point entities.Ponto) (entities.Ponto, error)
 	FindPointByID(pointID string) entities.Ponto
 	FindPointByClientIDAndAddressID(clientID string, addressID string) entities.Ponto
+	FindPointsByClientID(clientID string) []entities.Ponto
+	FindPointsByAddressID(addressID string) []entities.Ponto
 	DeletePoint(point entities.Ponto) error
-	DeletePointsByClientID(clientID string) error
-	DeletePointsByAddressID(addressID string) error
 	FindPoints(clientID string, addressID string) []entities.Ponto
 }
 
@@ -64,16 +64,7 @@ func (db *pointConnection) FindPointByClientIDAndAddressID(clientID string, addr
 	return point
 }
 
-func (db *pointConnection) DeletePoint(point entities.Ponto) error {
-	err := db.connection.Delete(&point).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (db *pointConnection) DeletePointsByClientID(clientID string) error {
+func (db *pointConnection) FindPointsByClientID(clientID string) []entities.Ponto {
 	points := []entities.Ponto{}
 
 	err := db.connection.Find(&points, "cliente_id = ?", clientID).Error
@@ -81,17 +72,10 @@ func (db *pointConnection) DeletePointsByClientID(clientID string) error {
 		log.Println(err.Error())
 	}
 
-	for _, point := range points {
-		err := db.connection.Delete(&point).Error
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return points
 }
 
-func (db *pointConnection) DeletePointsByAddressID(addressID string) error {
+func (db *pointConnection) FindPointsByAddressID(addressID string) []entities.Ponto {
 	points := []entities.Ponto{}
 
 	err := db.connection.Find(&points, "endereco_id = ?", addressID).Error
@@ -99,11 +83,13 @@ func (db *pointConnection) DeletePointsByAddressID(addressID string) error {
 		log.Println(err.Error())
 	}
 
-	for _, point := range points {
-		err := db.connection.Delete(&point).Error
-		if err != nil {
-			return err
-		}
+	return points
+}
+
+func (db *pointConnection) DeletePoint(point entities.Ponto) error {
+	err := db.connection.Delete(&point).Error
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -118,7 +118,11 @@ func (controller *pointController) FindPoints(ctx *gin.Context) {
 		return
 	}
 
-	pointsResponse := dtos.CreatePointResponse(points)
+	pointsResponse := []dtos.PointResponse{}
+
+	for _, point := range points {
+		pointsResponse = append(pointsResponse, dtos.CreatePointResponse(point))
+	}
 
 	response := map[string][]dtos.PointResponse{
 		"dados": pointsResponse,

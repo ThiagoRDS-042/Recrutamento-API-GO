@@ -11,6 +11,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		ClientRouterConfig(main)
 		AddressRouterConfig(main)
 		PointRouterConfig(main)
+		ContractRouterConfig(main)
 	}
 
 	return router

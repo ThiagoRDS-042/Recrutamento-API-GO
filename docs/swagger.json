@@ -242,6 +242,235 @@
                 }
             }
         },
+        "/contrato/{id}": {
+            "get": {
+                "description": "rota para a pesquisa do contrato pelo id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contract"
+                ],
+                "summary": "pesquisa o contrato",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id do contrato",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ContractResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "rota para a atualização dos dados do contrato a partir do id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contract"
+                ],
+                "summary": "atualiza o contrato",
+                "parameters": [
+                    {
+                        "enum": [
+                            "Em vigor",
+                            "Desativado Temporario",
+                            "Cancelado"
+                        ],
+                        "description": "atualizar contrato",
+                        "name": "estado",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "id do contrato",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entities.Contrato"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "rota para a exclusão do contrato pelo id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contract"
+                ],
+                "summary": "deleta o contrato",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id do contrato",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/contratos": {
+            "get": {
+                "description": "rota para a listagem de todos os contratos existentes no banco de dados",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contract"
+                ],
+                "summary": "lista os contratos existentes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id do cliente",
+                        "name": "cliente_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "id do endereço",
+                        "name": "endereco_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dtos.ContractResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "rota para o cadastro de novos contratos a partir do id do ponto",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contract"
+                ],
+                "summary": "cria um novo contrato",
+                "parameters": [
+                    {
+                        "description": "Criar Novo Contrato",
+                        "name": "contract",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.Contrato"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/entities.Contrato"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/endereco/{id}": {
             "get": {
                 "description": "rota para a pesquisa do endereço pelo id",
@@ -474,6 +703,35 @@
         }
     },
     "definitions": {
+        "dtos.ContractResponse": {
+            "type": "object",
+            "properties": {
+                "cliente_id": {
+                    "type": "string"
+                },
+                "cliente_nome": {
+                    "type": "string"
+                },
+                "cliente_tipo": {
+                    "type": "string"
+                },
+                "endereco_bairro": {
+                    "type": "string"
+                },
+                "endereco_id": {
+                    "type": "string"
+                },
+                "endereco_logradouro": {
+                    "type": "string"
+                },
+                "endereco_numero": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "entities.Cliente": {
             "type": "object",
             "properties": {
@@ -481,6 +739,14 @@
                     "type": "string"
                 },
                 "tipo": {
+                    "type": "string"
+                }
+            }
+        },
+        "entities.Contrato": {
+            "type": "object",
+            "properties": {
+                "ponto_id": {
                     "type": "string"
                 }
             }

@@ -1,10 +1,34 @@
 basePath: /api/v1
 definitions:
+  dtos.ContractResponse:
+    properties:
+      cliente_id:
+        type: string
+      cliente_nome:
+        type: string
+      cliente_tipo:
+        type: string
+      endereco_bairro:
+        type: string
+      endereco_id:
+        type: string
+      endereco_logradouro:
+        type: string
+      endereco_numero:
+        type: integer
+      id:
+        type: string
+    type: object
   entities.Cliente:
     properties:
       nome:
         type: string
       tipo:
+        type: string
+    type: object
+  entities.Contrato:
+    properties:
+      ponto_id:
         type: string
     type: object
   entities.Endereco:
@@ -183,6 +207,159 @@ paths:
       summary: cria um novo cliente
       tags:
       - client
+  /contrato/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: rota para a exclusão do contrato pelo id
+      parameters:
+      - description: id do contrato
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: deleta o contrato
+      tags:
+      - contract
+    get:
+      consumes:
+      - application/json
+      description: rota para a pesquisa do contrato pelo id
+      parameters:
+      - description: id do contrato
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ContractResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: pesquisa o contrato
+      tags:
+      - contract
+    put:
+      consumes:
+      - application/json
+      description: rota para a atualização dos dados do contrato a partir do id
+      parameters:
+      - description: atualizar contrato
+        enum:
+        - Em vigor
+        - Desativado Temporario
+        - Cancelado
+        in: body
+        name: estado
+        required: true
+        schema:
+          type: string
+      - description: id do contrato
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Contrato'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: atualiza o contrato
+      tags:
+      - contract
+  /contratos:
+    get:
+      consumes:
+      - application/json
+      description: rota para a listagem de todos os contratos existentes no banco
+        de dados
+      parameters:
+      - description: id do cliente
+        in: query
+        name: cliente_id
+        type: string
+      - description: id do endereço
+        in: query
+        name: endereco_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dtos.ContractResponse'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: lista os contratos existentes
+      tags:
+      - contract
+    post:
+      consumes:
+      - application/json
+      description: rota para o cadastro de novos contratos a partir do id do ponto
+      parameters:
+      - description: Criar Novo Contrato
+        in: body
+        name: contract
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Contrato'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Contrato'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: cria um novo contrato
+      tags:
+      - contract
   /endereco/{id}:
     delete:
       consumes:

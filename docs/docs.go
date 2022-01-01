@@ -395,6 +395,47 @@ var doc = `{
                 }
             }
         },
+        "/contrato/{id}/historico": {
+            "get": {
+                "description": "rota para a pesquisa do hitorico de evento de contrato pelo id do contrato",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contractEvent"
+                ],
+                "summary": "pesquisa de evento de contrato",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id do contrato",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dtos.ContractEventResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/contratos": {
             "get": {
                 "description": "rota para a listagem de todos os contratos existentes no banco de dados",
@@ -717,6 +758,23 @@ var doc = `{
         }
     },
     "definitions": {
+        "dtos.ContractEventResponse": {
+            "type": "object",
+            "properties": {
+                "data_evento": {
+                    "type": "string"
+                },
+                "estado_antigo": {
+                    "type": "string"
+                },
+                "estado_novo": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "dtos.ContractResponse": {
             "type": "object",
             "properties": {

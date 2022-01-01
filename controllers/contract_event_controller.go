@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
@@ -12,7 +11,6 @@ import (
 
 // ContractEventController representa o contracto de ContractEventController.
 type ContractEventController interface {
-	CreateContractEvent(ctx *gin.Context)
 	FindContractEventsByContractID(ctx *gin.Context)
 }
 
@@ -21,32 +19,16 @@ type contractEventController struct {
 	contractService      services.ContractService
 }
 
-func (controller *contractEventController) CreateContractEvent(ctx *gin.Context) {
-	contractEventDTO := dtos.ContratoEventCreateDTO{}
-
-	if err := ctx.ShouldBindJSON(&contractEventDTO); err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	contractExists := controller.contractService.FindContractByID(contractEventDTO.ContratoID)
-	if contractExists == (entities.Contrato{}) {
-		response := utils.BuildErrorResponse(utils.ContractNotFound)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	contractEvent, err := controller.contractEventService.CreateContractEvent(contractEventDTO)
-	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, contractEvent)
-}
-
+// FindContractEventsByContractID godoc
+// @Summary pesquisa de evento de contrato
+// @Description rota para a pesquisa do hitorico de evento de contrato pelo id do contrato
+// @Tags contractEvent
+// @Accept json
+// @Produce json
+// @Param id path string true "id do contrato"
+// @Success 200 {object} []dtos.ContractEventResponse
+// @Failure 404 {object} utils.Response
+// @Router /contrato/{id}/historico [get]
 func (controller *contractEventController) FindContractEventsByContractID(ctx *gin.Context) {
 	contractID := ctx.Param("id")
 

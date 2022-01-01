@@ -4,10 +4,6 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 )
 
-// EM_VIGOR        ContractState = "Em vigor"
-// DESATIVADO_TEMP ContractState = "Desativado Temporario"
-// CANCELADO       ContractState = "Cancelado"
-
 // ContractCreateDTO representa o modelo usado para cadastrar contratos.
 type ContractCreateDTO struct {
 	Estado  entities.ContractState `json:"estado" form:"estado"`

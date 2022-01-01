@@ -27,6 +27,17 @@ type contractController struct {
 	pontoService         services.PointService
 }
 
+// CreateContract godoc
+// @Summary cria um novo contrato
+// @Description rota para o cadastro de novos contratos a partir do id do ponto
+// @Tags contract
+// @Accept json
+// @Produce json
+// @Param contract body entities.Contrato true "Criar Novo Contrato"
+// @Success 201 {object} entities.Contrato
+// @Failure 400 {object} utils.Response
+// @Failure 409 {object} utils.Response
+// @Router /contratos [post]
 func (controller *contractController) CreateContract(ctx *gin.Context) {
 	contractDTO := dtos.ContractCreateDTO{}
 
@@ -107,6 +118,19 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 	}
 }
 
+// UpdateContract godoc
+// @Summary atualiza o contrato
+// @Description rota para a atualização dos dados do contrato a partir do id
+// @Tags contract
+// @Accept json
+// @Produce json
+// @Param estado body string true "atualizar contrato" Enums(Em vigor, Desativado Temporario, Cancelado)
+// @Param id path string true "id do contrato"
+// @Success 200 {object} entities.Contrato
+// @Failure 400 {object} utils.Response
+// @Failure 404 {object} utils.Response
+// @Failure 409 {object} utils.Response
+// @Router /contrato/{id} [put]
 func (controller *contractController) UpdateContract(ctx *gin.Context) {
 	contractDTO := dtos.ContractUpdateDTO{}
 
@@ -161,6 +185,16 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, contract)
 }
 
+// FindContractByID godoc
+// @Summary pesquisa o contrato
+// @Description rota para a pesquisa do contrato pelo id
+// @Tags contract
+// @Accept json
+// @Produce json
+// @Param id path string true "id do contrato"
+// @Success 200 {object} dtos.ContractResponse
+// @Failure 404 {object} utils.Response
+// @Router /contrato/{id} [get]
 func (controller *contractController) FindContractByID(ctx *gin.Context) {
 	contractID := ctx.Param("id")
 
@@ -177,6 +211,17 @@ func (controller *contractController) FindContractByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, contractResponse)
 }
 
+// DeleteContract godoc
+// @Summary deleta o contrato
+// @Description rota para a exclusão do contrato pelo id
+// @Tags contract
+// @Accept json
+// @Produce json
+// @Param id path string true "id do contrato"
+// @Success 204 "No Content"
+// @Failure 400 {object} utils.Response
+// @Failure 404 {object} utils.Response
+// @Router /contrato/{id} [delete]
 func (controller *contractController) DeleteContract(ctx *gin.Context) {
 	contractID := ctx.Param("id")
 
@@ -198,6 +243,17 @@ func (controller *contractController) DeleteContract(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, entities.Contrato{})
 }
 
+// FindContracts godoc
+// @Summary lista os contratos existentes
+// @Description rota para a listagem de todos os contratos existentes no banco de dados
+// @Tags contract
+// @Accept json
+// @Produce json
+// @Param cliente_id query string false "id do cliente"
+// @Param endereco_id query string false "id do endereço"
+// @Success 200 {object} []dtos.ContractResponse
+// @Failure 404 {object} utils.Response
+// @Router /contratos [get]
 func (controller *contractController) FindContracts(ctx *gin.Context) {
 	clientID := ctx.Query("cliente_id")
 	addressID := ctx.Query("endereco_id")

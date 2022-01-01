@@ -26,6 +26,17 @@ type pointController struct {
 	contractService services.ContractService
 }
 
+// CreatePoint godoc
+// @Summary cria um novo ponto
+// @Description rota para o cadastro de novos pontos
+// @Tags point
+// @Accept json
+// @Produce json
+// @Param point body entities.Ponto true "Criar Novo Ponto"
+// @Success 201 {object} entities.Ponto
+// @Failure 400 {object} utils.Response
+// @Failure 409 {object} utils.Response
+// @Router /pontos [post]
 func (controller *pointController) CreatePoint(ctx *gin.Context) {
 	pointDTO := dtos.PointCreateDTO{}
 
@@ -86,6 +97,17 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 	}
 }
 
+// DeletePoint godoc
+// @Summary deleta o ponto
+// @Description rota para a exclusão do ponto pelo id
+// @Tags point
+// @Accept json
+// @Produce json
+// @Param id path string true "id do ponto"
+// @Success 204 "No Content"
+// @Failure 400 {object} utils.Response
+// @Failure 404 {object} utils.Response
+// @Router /ponto/{id} [delete]
 func (controller *pointController) DeletePoint(ctx *gin.Context) {
 	pointID := ctx.Param("id")
 
@@ -114,6 +136,17 @@ func (controller *pointController) DeletePoint(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, entities.Cliente{})
 }
 
+// FindPoints godoc
+// @Summary lista os pontos existentes
+// @Description rota para a listagem de todos os pontos existentes no banco de dados
+// @Tags point
+// @Accept json
+// @Produce json
+// @Param cliente_id query string false "id do cliente"
+// @Param endereco_id query string false "id do endereço"
+// @Success 200 {object} []dtos.PointResponse
+// @Failure 404 {object} utils.Response
+// @Router /pontos [get]
 func (controller *pointController) FindPoints(ctx *gin.Context) {
 	clientID := ctx.Query("cliente_id")
 	addressID := ctx.Query("endereco_id")

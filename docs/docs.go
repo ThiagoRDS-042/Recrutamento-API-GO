@@ -755,6 +755,137 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/ponto/{id}": {
+            "delete": {
+                "description": "rota para a exclusão do ponto pelo id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "point"
+                ],
+                "summary": "deleta o ponto",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id do ponto",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/pontos": {
+            "get": {
+                "description": "rota para a listagem de todos os pontos existentes no banco de dados",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "point"
+                ],
+                "summary": "lista os pontos existentes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id do cliente",
+                        "name": "cliente_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "id do endereço",
+                        "name": "endereco_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dtos.PointResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "rota para o cadastro de novos pontos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "point"
+                ],
+                "summary": "cria um novo ponto",
+                "parameters": [
+                    {
+                        "description": "Criar Novo Ponto",
+                        "name": "point",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.Ponto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/entities.Ponto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -776,6 +907,35 @@ var doc = `{
             }
         },
         "dtos.ContractResponse": {
+            "type": "object",
+            "properties": {
+                "cliente_id": {
+                    "type": "string"
+                },
+                "cliente_nome": {
+                    "type": "string"
+                },
+                "cliente_tipo": {
+                    "type": "string"
+                },
+                "endereco_bairro": {
+                    "type": "string"
+                },
+                "endereco_id": {
+                    "type": "string"
+                },
+                "endereco_logradouro": {
+                    "type": "string"
+                },
+                "endereco_numero": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos.PointResponse": {
             "type": "object",
             "properties": {
                 "cliente_id": {
@@ -834,6 +994,17 @@ var doc = `{
                 },
                 "numero": {
                     "type": "integer"
+                }
+            }
+        },
+        "entities.Ponto": {
+            "type": "object",
+            "properties": {
+                "cliente_id": {
+                    "type": "string"
+                },
+                "endereco_id": {
+                    "type": "string"
                 }
             }
         },

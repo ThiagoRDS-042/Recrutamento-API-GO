@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database/migrations"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -47,6 +48,8 @@ func ConnectDB() {
 	}
 
 	db = database
+
+	migrations.RunMigrations(db)
 
 	config, err := db.DB()
 	if err != nil {

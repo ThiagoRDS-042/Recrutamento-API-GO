@@ -1,0 +1,177 @@
+basePath: /api/v1
+definitions:
+  entities.Cliente:
+    properties:
+      nome:
+        type: string
+      tipo:
+        type: string
+    type: object
+  utils.Response:
+    properties:
+      message: {}
+    type: object
+host: localhost:2222
+info:
+  contact:
+    email: thiagords042@gmail.com
+    name: Thiago Rodrigues
+    url: http://thiagords042/support
+  description: Uma API básica para cadastro de clientes, endereços e contratos.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API Recrutamento
+  version: "1.0"
+paths:
+  /cliente/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: rota para a exclusão do cliente pelo id
+      parameters:
+      - description: id do cliente
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: deleta o cliente
+      tags:
+      - client
+    get:
+      consumes:
+      - application/json
+      description: rota para a pesquisa do cliente pelo id
+      parameters:
+      - description: id do cliente
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Cliente'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: pesquisa o cliente
+      tags:
+      - client
+    put:
+      consumes:
+      - application/json
+      description: rota para a atualização dos dados do cliente a partir do id
+      parameters:
+      - description: atualizar cliente
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Cliente'
+      - description: id do cliente
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Cliente'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: atualiza o cliente
+      tags:
+      - client
+  /clientes:
+    get:
+      consumes:
+      - application/json
+      description: rota para a listagem de todos os clientes existentes no banco de
+        dados
+      parameters:
+      - description: tipo de cliente
+        in: query
+        name: tipo
+        type: string
+      - description: nome do cliente
+        in: query
+        name: nome
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Cliente'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: lista os clientes existentes
+      tags:
+      - client
+    post:
+      consumes:
+      - application/json
+      description: rota para o cadastro de novos clientes
+      parameters:
+      - description: Criar Novo Cliente
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Cliente'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Cliente'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: cria um novo cliente
+      tags:
+      - client
+swagger: "2.0"

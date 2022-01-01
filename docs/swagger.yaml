@@ -30,6 +30,25 @@ definitions:
       id:
         type: string
     type: object
+  dtos.PointResponse:
+    properties:
+      cliente_id:
+        type: string
+      cliente_nome:
+        type: string
+      cliente_tipo:
+        type: string
+      endereco_bairro:
+        type: string
+      endereco_id:
+        type: string
+      endereco_logradouro:
+        type: string
+      endereco_numero:
+        type: integer
+      id:
+        type: string
+    type: object
   entities.Cliente:
     properties:
       nome:
@@ -50,6 +69,13 @@ definitions:
         type: string
       numero:
         type: integer
+    type: object
+  entities.Ponto:
+    properties:
+      cliente_id:
+        type: string
+      endereco_id:
+        type: string
     type: object
   utils.Response:
     properties:
@@ -552,4 +578,91 @@ paths:
       summary: cria um novo endereço
       tags:
       - address
+  /ponto/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: rota para a exclusão do ponto pelo id
+      parameters:
+      - description: id do ponto
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: deleta o ponto
+      tags:
+      - point
+  /pontos:
+    get:
+      consumes:
+      - application/json
+      description: rota para a listagem de todos os pontos existentes no banco de
+        dados
+      parameters:
+      - description: id do cliente
+        in: query
+        name: cliente_id
+        type: string
+      - description: id do endereço
+        in: query
+        name: endereco_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dtos.PointResponse'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: lista os pontos existentes
+      tags:
+      - point
+    post:
+      consumes:
+      - application/json
+      description: rota para o cadastro de novos pontos
+      parameters:
+      - description: Criar Novo Ponto
+        in: body
+        name: point
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Ponto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Ponto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: cria um novo ponto
+      tags:
+      - point
 swagger: "2.0"

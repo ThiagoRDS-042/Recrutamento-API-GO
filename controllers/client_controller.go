@@ -26,6 +26,17 @@ type clientController struct {
 	pointService  services.PointService
 }
 
+// CreateClient godoc
+// @Summary cria um novo cliente
+// @Description rota para o cadastro de novos clientes
+// @Tags client
+// @Accept json
+// @Produce json
+// @Param client body entities.Cliente true "Criar Novo Cliente"
+// @Success 201 {object} entities.Cliente
+// @Failure 400 {object} utils.Response
+// @Failure 409 {object} utils.Response
+// @Router /clientes [post]
 func (controller *clientController) CreateClient(ctx *gin.Context) {
 	clientDTO := dtos.ClientCreateDTO{}
 
@@ -72,6 +83,19 @@ func (controller *clientController) CreateClient(ctx *gin.Context) {
 	}
 }
 
+// UpdateClient godoc
+// @Summary atualiza o cliente
+// @Description rota para a atualização dos dados do cliente a partir do id
+// @Tags client
+// @Accept json
+// @Produce json
+// @Param client body entities.Cliente true "atualizar cliente"
+// @Param id path string true "id do cliente"
+// @Success 200 {object} entities.Cliente
+// @Failure 400 {object} utils.Response
+// @Failure 404 {object} utils.Response
+// @Failure 409 {object} utils.Response
+// @Router /cliente/{id} [put]
 func (controller *clientController) UpdateClient(ctx *gin.Context) {
 	clientDTO := dtos.ClientUpdateDTO{}
 
@@ -131,6 +155,16 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, client)
 }
 
+// FindClientByID godoc
+// @Summary pesquisa o cliente
+// @Description rota para a pesquisa do cliente pelo id
+// @Tags client
+// @Accept json
+// @Produce json
+// @Param id path string true "id do cliente"
+// @Success 200 {object} entities.Cliente
+// @Failure 404 {object} utils.Response
+// @Router /cliente/{id} [get]
 func (controller *clientController) FindClientByID(ctx *gin.Context) {
 	clientID := ctx.Param("id")
 
@@ -145,6 +179,17 @@ func (controller *clientController) FindClientByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, clientFound)
 }
 
+// DeleteClient godoc
+// @Summary deleta o cliente
+// @Description rota para a exclusão do cliente pelo id
+// @Tags client
+// @Accept json
+// @Produce json
+// @Param id path string true "id do cliente"
+// @Success 204 "No Content"
+// @Failure 400 {object} utils.Response
+// @Failure 404 {object} utils.Response
+// @Router /cliente/{id} [delete]
 func (controller *clientController) DeleteClient(ctx *gin.Context) {
 	clientID := ctx.Param("id")
 
@@ -173,6 +218,17 @@ func (controller *clientController) DeleteClient(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, entities.Cliente{})
 }
 
+// FindClients godoc
+// @Summary lista os clientes existentes
+// @Description rota para a listagem de todos os clientes existentes no banco de dados
+// @Tags client
+// @Accept json
+// @Produce json
+// @Param tipo query string false "tipo de cliente"
+// @Param nome query string false "nome do cliente"
+// @Success 200 {object} []entities.Cliente
+// @Failure 404 {object} utils.Response
+// @Router /clientes [get]
 func (controller *clientController) FindClients(ctx *gin.Context) {
 	clientType := ctx.Query("tipo")
 	clientName := ctx.Query("nome")

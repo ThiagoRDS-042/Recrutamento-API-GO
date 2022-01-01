@@ -14,6 +14,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		PointRouterConfig(main)
 		ContractRouterConfig(main)
 		ContractEventRouterConfig(main)
+		SwaggerRouterConfig(main)
 	}
 
 	return router

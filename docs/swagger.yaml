@@ -7,6 +7,15 @@ definitions:
       tipo:
         type: string
     type: object
+  entities.Endereco:
+    properties:
+      bairro:
+        type: string
+      logradouro:
+        type: string
+      numero:
+        type: integer
+    type: object
   utils.Response:
     properties:
       message: {}
@@ -174,4 +183,157 @@ paths:
       summary: cria um novo cliente
       tags:
       - client
+  /endereco/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: rota para a exclusão do endereço pelo id
+      parameters:
+      - description: id do endereço
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: deleta o endereço
+      tags:
+      - address
+    get:
+      consumes:
+      - application/json
+      description: rota para a pesquisa do endereço pelo id
+      parameters:
+      - description: id do endereço
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Endereco'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: pesquisa o endereço
+      tags:
+      - address
+    put:
+      consumes:
+      - application/json
+      description: rota para a atualização dos dados do endereço a partir do id
+      parameters:
+      - description: atualizar endereço
+        in: body
+        name: address
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Endereco'
+      - description: id do endereço
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Endereco'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: atualiza o endereço
+      tags:
+      - address
+  /enderecos:
+    get:
+      consumes:
+      - application/json
+      description: rota para a listagem de todos os endereços existentes no banco
+        de dados
+      parameters:
+      - description: logradouro
+        in: query
+        name: logradouro
+        type: string
+      - description: bairro
+        in: query
+        name: bairro
+        type: string
+      - description: numero da casa
+        in: query
+        name: numero
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Endereco'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: lista os endreços existentes
+      tags:
+      - address
+    post:
+      consumes:
+      - application/json
+      description: rota para o cadastro de novos endereços
+      parameters:
+      - description: Criar Novo Endereço
+        in: body
+        name: address
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Endereco'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Endereco'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: cria um novo endereço
+      tags:
+      - address
 swagger: "2.0"

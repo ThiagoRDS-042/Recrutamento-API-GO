@@ -16,7 +16,6 @@ type ContractEventController interface {
 
 type contractEventController struct {
 	contractEventService services.ContractEventService
-	contractService      services.ContractService
 }
 
 // FindContractEventsByContractID godoc
@@ -54,9 +53,8 @@ func (controller *contractEventController) FindContractEventsByContractID(ctx *g
 }
 
 // NewContractEventController cria uma nova isnancia de ContractEventController.
-func NewContractEventController(contractEventService services.ContractEventService, contractService services.ContractService) ContractEventController {
+func NewContractEventController(contractEventService services.ContractEventService) ContractEventController {
 	return &contractEventController{
 		contractEventService: contractEventService,
-		contractService:      contractService,
 	}
 }

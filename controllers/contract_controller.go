@@ -20,9 +20,7 @@ type ContractController interface {
 }
 
 type contractController struct {
-	contractService      services.ContractService
-	contractEventService services.ContractEventService
-	pointService         services.PointService
+	contractService services.ContractService
 }
 
 // CreateContract godoc
@@ -45,13 +43,6 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 		return
 	}
 
-	pontoExists := controller.pointService.FindPointByID(contractDTO.PontoID)
-	if pontoExists == (entities.Ponto{}) {
-		response := utils.NewResponse(utils.PointNotFound)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
 	contractDTO.Estado = entities.VIGOR
 
 	contract, responseError := controller.contractService.CreateContract(contractDTO)
@@ -61,18 +52,7 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 		return
 	}
 
-	contractEventDTO := dtos.ContratoEventCreateDTO{
-		ContratoID:      contract.ID,
-		EstadoAnterior:  contract.Estado,
-		EstadoPosterior: contract.Estado,
-	}
-
-	_, responseError = controller.contractEventService.CreateContractEvent(contractEventDTO)
-	if len(responseError.Message) != 0 {
-		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
-		return
-	}
+	ctx.JSON(http.StatusCreated, contract)
 }
 
 // UpdateContract godoc
@@ -101,20 +81,7 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 
 	contractDTO.ID = contractID
 
-	contract, oldState, responseError := controller.contractService.UpdateContract(contractDTO)
-	if len(responseError.Message) != 0 {
-		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
-		return
-	}
-
-	contractEventDTO := dtos.ContratoEventCreateDTO{
-		ContratoID:      contract.ID,
-		EstadoAnterior:  oldState,
-		EstadoPosterior: contract.Estado,
-	}
-
-	_, responseError = controller.contractEventService.CreateContractEvent(contractEventDTO)
+	contract, responseError := controller.contractService.UpdateContract(contractDTO)
 	if len(responseError.Message) != 0 {
 		response := utils.NewResponse(responseError.Message)
 		ctx.JSON(responseError.StatusCode, response)
@@ -219,10 +186,8 @@ func (controller *contractController) FindContracts(ctx *gin.Context) {
 }
 
 // NewContractController cria uma nova isnancia de ContractController.
-func NewContractController(contractService services.ContractService, contractEventService services.ContractEventService, pointService services.PointService) ContractController {
+func NewContractController(contractService services.ContractService) ContractController {
 	return &contractController{
-		contractService:      contractService,
-		contractEventService: contractEventService,
-		pointService:         pointService,
+		contractService: contractService,
 	}
 }

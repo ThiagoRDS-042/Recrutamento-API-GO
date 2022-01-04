@@ -13,8 +13,7 @@ type ContractCreateDTO struct {
 // ContractUpdateDTO representa o modelo usado para atualizar contratos.
 type ContractUpdateDTO struct {
 	Base
-	Estado  entities.ContractState `json:"estado" form:"estado" binding:"required,eq=Em vigor|eq=Desativado Temporario|eq=Cancelado"`
-	PontoID string                 `json:"ponto_id" form:"ponto_id"`
+	Estado entities.ContractState `json:"estado" form:"estado" binding:"required,eq=Em vigor|eq=Desativado Temporario|eq=Cancelado"`
 }
 
 // ContractResponse representa o modelo usado para retornar a resposta da pesquisa dos contratos.

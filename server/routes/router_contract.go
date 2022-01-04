@@ -2,21 +2,11 @@ package routes
 
 import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/controllers"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/gin-gonic/gin"
 )
 
-// ContractEvent
-var (
-	contractEventRepository = repositories.NewContractEventRepository(db)
-	contractEventService    = services.NewContractEventService(contractEventRepository)
-)
-
 // ContractRouterConfig define as configurações das rotas dos contratos.
-func ContractRouterConfig(router *gin.RouterGroup) {
-	contractController := controllers.NewContractController(contractService, contractEventService, pointService)
-
+func ContractRouterConfig(router *gin.RouterGroup, contractController controllers.ContractController) {
 	clients := router.Group("contratos")
 	{
 		clients.POST("/", contractController.CreateContract)

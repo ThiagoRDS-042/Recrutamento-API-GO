@@ -1,17 +1,20 @@
 package services
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories"
+	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )
 
 // AddressService representa a interface de addressService.
 type AddressService interface {
-	CreateAddress(addressDTO dtos.AddressCreateDTO) (entities.Endereco, error)
+	CreateAddress(addressDTO dtos.AddressCreateDTO) (entities.Endereco, utils.ResponseError)
 	UpdateAddress(addressDTO dtos.AddressUpdateDTO) (entities.Endereco, error)
 	FindAddressByID(addressID string) entities.Endereco
 	FindAddressByFields(street string, neighborhood string, number int) entities.Endereco
@@ -23,20 +26,40 @@ type addressService struct {
 	addressRepository repositories.AddressRepository
 }
 
-func (service *addressService) CreateAddress(addressDTO dtos.AddressCreateDTO) (entities.Endereco, error) {
+func (service *addressService) CreateAddress(addressDTO dtos.AddressCreateDTO) (entities.Endereco, utils.ResponseError) {
 	address := entities.Endereco{}
 
 	err := smapping.FillStruct(&address, smapping.MapFields(&addressDTO))
 	if err != nil {
-		log.Fatalf("failed to map: %v", err)
+		return entities.Endereco{},
+			utils.NewResponseError(fmt.Sprintf("failed to map: %v", err), http.StatusInternalServerError)
 	}
 
-	address, err = service.addressRepository.CreateAddress(address)
-	if err != nil {
-		return address, err
-	}
+	addressAlreadyExists := service.FindAddressByFields(
+		address.Logradouro, address.Bairro, address.Numero)
 
-	return address, nil
+	switch {
+	case addressAlreadyExists.DataRemocao.Valid:
+		address.ID = addressAlreadyExists.ID
+
+		address, err := service.addressRepository.UpdateAddress(address)
+		if err != nil {
+			return entities.Endereco{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+		}
+
+		return address, utils.ResponseError{}
+
+	case (addressAlreadyExists != entities.Endereco{}):
+		return entities.Endereco{}, utils.NewResponseError(utils.AddressAlreadyExists, http.StatusConflict)
+
+	default:
+		address, err := service.addressRepository.CreateAddress(address)
+		if err != nil {
+			return entities.Endereco{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+		}
+
+		return address, utils.ResponseError{}
+	}
 }
 
 func (service *addressService) UpdateAddress(addressDTO dtos.AddressUpdateDTO) (entities.Endereco, error) {

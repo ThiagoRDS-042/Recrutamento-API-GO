@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
@@ -9,7 +8,6 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/mashingan/smapping"
 )
 
 // AddressController representa o contracto de AddressController.
@@ -41,47 +39,20 @@ func (controller *addressController) CreateAddress(ctx *gin.Context) {
 	addressDTO := dtos.AddressCreateDTO{}
 
 	if err := ctx.ShouldBindJSON(&addressDTO); err != nil {
-		response := utils.BuildErrorResponse("createError: " + err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	addressAlreadyExists := controller.addressService.FindAddressByFields(
-		addressDTO.Logradouro, addressDTO.Bairro, addressDTO.Numero)
+	address, responseError := controller.addressService.CreateAddress(addressDTO)
 
-	switch {
-	case addressAlreadyExists.DataRemocao.Valid:
-		addressUpdateDTO := dtos.AddressUpdateDTO{}
-		err := smapping.FillStruct(&addressUpdateDTO, smapping.MapFields(&addressDTO))
-		if err != nil {
-			log.Fatalf("failed to map: %v", err)
-		}
-
-		addressUpdateDTO.ID = addressAlreadyExists.ID
-
-		client, err := controller.addressService.UpdateAddress(addressUpdateDTO)
-		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, client)
-
-	case (addressAlreadyExists != entities.Endereco{}):
-		response := utils.BuildErrorResponse(utils.AddressAlreadyExists)
-		ctx.JSON(http.StatusConflict, response)
-
-	default:
-		address, err := controller.addressService.CreateAddress(addressDTO)
-		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, address)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
+		return
 	}
+
+	ctx.JSON(http.StatusCreated, address)
 }
 
 // UpdateAddress godoc
@@ -101,7 +72,7 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 	addressDTO := dtos.AddressUpdateDTO{}
 
 	if err := ctx.ShouldBindJSON(&addressDTO); err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -111,7 +82,7 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 	addressFound := controller.addressService.FindAddressByID(addressID)
 
 	if addressFound == (entities.Endereco{}) {
-		response := utils.BuildErrorResponse(utils.AddressNotFound)
+		response := utils.NewResponse(utils.AddressNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
@@ -122,7 +93,7 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 		addressDTO.Logradouro = addressFound.Logradouro
 	} else {
 		if !dtos.IsValidTextLenght(addressDTO.Logradouro) {
-			response := utils.BuildErrorResponse("logradouro: " + utils.InvalidNumberOfCaracter)
+			response := utils.NewResponse("logradouro: " + utils.InvalidNumberOfCaracter)
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -132,7 +103,7 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 		addressDTO.Bairro = addressFound.Bairro
 	} else {
 		if !dtos.IsValidTextLenght(addressDTO.Bairro) {
-			response := utils.BuildErrorResponse("bairro: " + utils.InvalidNumberOfCaracter)
+			response := utils.NewResponse("bairro: " + utils.InvalidNumberOfCaracter)
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -146,14 +117,14 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 		addressDTO.Logradouro, addressDTO.Bairro, addressDTO.Numero)
 
 	if (addressAlreadyExists != entities.Endereco{}) && (addressFound.ID != addressAlreadyExists.ID) {
-		response := utils.BuildErrorResponse(utils.AddressAlreadyExists)
+		response := utils.NewResponse(utils.AddressAlreadyExists)
 		ctx.JSON(http.StatusConflict, response)
 		return
 	}
 
 	address, err := controller.addressService.UpdateAddress(addressDTO)
 	if err != nil {
-		response := utils.BuildErrorResponse("updateError: " + err.Error())
+		response := utils.NewResponse("updateError: " + err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -177,7 +148,7 @@ func (controller *addressController) FindAddressByID(ctx *gin.Context) {
 	addressFound := controller.addressService.FindAddressByID(addressID)
 
 	if addressFound == (entities.Endereco{}) {
-		response := utils.BuildErrorResponse(utils.AddressNotFound)
+		response := utils.NewResponse(utils.AddressNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
@@ -202,21 +173,21 @@ func (controller *addressController) DeleteAddress(ctx *gin.Context) {
 	addressFound := controller.addressService.FindAddressByID(addressID)
 
 	if addressFound == (entities.Endereco{}) {
-		response := utils.BuildErrorResponse(utils.AddressNotFound)
+		response := utils.NewResponse(utils.AddressNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
 
 	err := controller.addressService.DeleteAddress(addressFound)
 	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	err = controller.pointService.DeletePointsByAddressID(addressFound.ID)
 	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -245,7 +216,7 @@ func (controller *addressController) FindAddress(ctx *gin.Context) {
 		addressStreet, addressNeighborhood, addressNumber)
 
 	if len(addresses) == 0 {
-		response := utils.BuildErrorResponse(utils.AddressNotFound)
+		response := utils.NewResponse(utils.AddressNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}

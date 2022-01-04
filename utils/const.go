@@ -2,16 +2,16 @@ package utils
 
 // Constantes usadas para respostas padrões da API.
 const (
-	NameAlreadyExists        = "Name already exists"
-	ClientNotFound           = "Client not found"
-	InvalidNumberOfCaracter  = "Invalid number of caracter"
-	InvalidClientType        = "Invalid client type"
-	AddressAlreadyExists     = "Address already exists"
-	AddressNotFound          = "Address not found"
-	PointNotFound            = "Point not found"
-	PointAlreadyExists       = "Point already exists"
-	ContractAlreadyExists    = "Contract already exists"
-	ContractNotFound         = "Contract not found"
-	Unathorized              = "Unathorized"
-	HitoryOfContractNotFound = "Hitory of contract not found"
+	NameAlreadyExists         = "name already exists"
+	ClientNotFound            = "client not found"
+	InvalidNumberOfCaracter   = "invalid number of caracter"
+	InvalidClientType         = "invalid client type"
+	AddressAlreadyExists      = "address already exists"
+	AddressNotFound           = "address not found"
+	PointNotFound             = "point not found"
+	PointAlreadyExists        = "point already exists"
+	ContractAlreadyExists     = "contract already exists"
+	ContractNotFound          = "contract not found"
+	Unathorized               = "unathorized"
+	HistoryOfContractNotFound = "history of contract not found"
 )

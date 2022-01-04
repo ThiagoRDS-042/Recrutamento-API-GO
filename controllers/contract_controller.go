@@ -42,14 +42,14 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 	contractDTO := dtos.ContractCreateDTO{}
 
 	if err := ctx.ShouldBindJSON(&contractDTO); err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	pontoExists := controller.pointService.FindPointByID(contractDTO.PontoID)
 	if pontoExists == (entities.Ponto{}) {
-		response := utils.BuildErrorResponse(utils.PointNotFound)
+		response := utils.NewResponse(utils.PointNotFound)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -69,7 +69,7 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 		contractUpdateDTO.ID = contractAlreadyExists.ID
 		contract, err := controller.contractService.UpdateContract(contractUpdateDTO)
 		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
+			response := utils.NewResponse(err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -82,7 +82,7 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 
 		_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
 		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
+			response := utils.NewResponse(err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -90,13 +90,13 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 		ctx.JSON(http.StatusCreated, contract)
 
 	case (contractAlreadyExists != entities.Contrato{}):
-		response := utils.BuildErrorResponse(utils.ContractAlreadyExists)
+		response := utils.NewResponse(utils.ContractAlreadyExists)
 		ctx.JSON(http.StatusConflict, response)
 
 	default:
 		contract, err := controller.contractService.CreateContract(contractDTO)
 		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
+			response := utils.NewResponse(err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -109,7 +109,7 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 
 		_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
 		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
+			response := utils.NewResponse(err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -135,7 +135,7 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 	contractDTO := dtos.ContractUpdateDTO{}
 
 	if err := ctx.ShouldBindJSON(&contractDTO); err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -145,13 +145,13 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 	contractFound := controller.contractService.FindContractByID(contractID)
 
 	if contractFound == (entities.Contrato{}) {
-		response := utils.BuildErrorResponse(utils.ContractNotFound)
+		response := utils.NewResponse(utils.ContractNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
 
 	if !dtos.IsAuthorized(contractFound.Estado, contractDTO.Estado) {
-		response := utils.BuildErrorResponse(utils.Unathorized)
+		response := utils.NewResponse(utils.Unathorized)
 		ctx.JSON(http.StatusUnauthorized, response)
 		return
 	}
@@ -164,7 +164,7 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 
 	contract, err := controller.contractService.UpdateContract(contractDTO)
 	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -177,7 +177,7 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 
 	_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
 	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -201,7 +201,7 @@ func (controller *contractController) FindContractByID(ctx *gin.Context) {
 	contractFound := controller.contractService.FindContractByID(contractID)
 
 	if contractFound == (entities.Contrato{}) {
-		response := utils.BuildErrorResponse(utils.ContractNotFound)
+		response := utils.NewResponse(utils.ContractNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
@@ -228,14 +228,14 @@ func (controller *contractController) DeleteContract(ctx *gin.Context) {
 	contractFound := controller.contractService.FindContractByID(contractID)
 
 	if contractFound == (entities.Contrato{}) {
-		response := utils.BuildErrorResponse(utils.ClientNotFound)
+		response := utils.NewResponse(utils.ClientNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
 
 	err := controller.contractService.DeleteContract(contractFound)
 	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -261,7 +261,7 @@ func (controller *contractController) FindContracts(ctx *gin.Context) {
 	contracts := controller.contractService.FindContracts(clientID, addressID)
 
 	if len(contracts) == 0 {
-		response := utils.BuildErrorResponse(utils.ContractNotFound)
+		response := utils.NewResponse(utils.ContractNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}

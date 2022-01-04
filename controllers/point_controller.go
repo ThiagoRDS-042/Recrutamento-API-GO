@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
@@ -9,7 +8,6 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/mashingan/smapping"
 )
 
 // PointController representa o contracto de pointController.
@@ -49,52 +47,25 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 	clientExists := controller.clientService.FindClientByID(pointDTO.ClienteID)
 	if clientExists == (entities.Cliente{}) {
 		response := utils.NewResponse(utils.ClientNotFound)
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
 
 	addressExists := controller.addressService.FindAddressByID(pointDTO.EnderecoID)
 	if addressExists == (entities.Endereco{}) {
 		response := utils.NewResponse(utils.AddressNotFound)
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
 
-	pointAlreadyExists := controller.pointService.FindPointByClientIDAndAddressID(
-		pointDTO.ClienteID, pointDTO.EnderecoID)
-
-	switch {
-	case pointAlreadyExists.DataRemocao.Valid:
-		pointUpdateDTO := dtos.PointUpdateDTO{}
-		err := smapping.FillStruct(&pointUpdateDTO, smapping.MapFields(&pointDTO))
-		if err != nil {
-			log.Fatalf("failed to map: %v", err)
-		}
-
-		pointUpdateDTO.ID = pointAlreadyExists.ID
-		point, err := controller.pointService.UpdatePoint(pointUpdateDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, point)
-
-	case (pointAlreadyExists != entities.Ponto{}):
-		response := utils.NewResponse(utils.PointAlreadyExists)
-		ctx.JSON(http.StatusConflict, response)
-
-	default:
-		point, err := controller.pointService.CreatePoint(pointDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, point)
+	point, responseError := controller.pointService.CreatePoint(pointDTO)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
+		return
 	}
+
+	ctx.JSON(http.StatusCreated, point)
 }
 
 // DeletePoint godoc
@@ -111,22 +82,14 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 func (controller *pointController) DeletePoint(ctx *gin.Context) {
 	pointID := ctx.Param("id")
 
-	pointFound := controller.pointService.FindPointByID(pointID)
-
-	if pointFound == (entities.Ponto{}) {
-		response := utils.NewResponse(utils.PointNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+	responseError := controller.pointService.DeletePoint(pointID)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
 		return
 	}
 
-	err := controller.pointService.DeletePoint(pointFound)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	err = controller.contractService.DeleteContractByPontoID(pointFound.ID)
+	err := controller.contractService.DeleteContractByPontoID(pointID)
 	if err != nil {
 		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)

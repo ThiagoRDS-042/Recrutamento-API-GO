@@ -1,17 +1,19 @@
 package services
 
 import (
-	"log"
+	"fmt"
+	"net/http"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories"
+	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )
 
 // ContractEventService representa a interface de ContractEventService.
 type ContractEventService interface {
-	CreateContractEvent(contractEventDTO dtos.ContratoEventCreateDTO) (entities.ContratoEvento, error)
+	CreateContractEvent(contractEventDTO dtos.ContratoEventCreateDTO) (entities.ContratoEvento, utils.ResponseError)
 	FindContractEventsByContractID(contractID string) []entities.ContratoEvento
 }
 
@@ -19,22 +21,21 @@ type contractEventService struct {
 	contractEventRepository repositories.ContractEventRepository
 }
 
-func (service *contractEventService) CreateContractEvent(contractEventDTO dtos.ContratoEventCreateDTO) (entities.ContratoEvento, error) {
+func (service *contractEventService) CreateContractEvent(contractEventDTO dtos.ContratoEventCreateDTO) (entities.ContratoEvento, utils.ResponseError) {
 	contractEvent := entities.ContratoEvento{}
 
 	err := smapping.FillStruct(&contractEvent, smapping.MapFields(&contractEventDTO))
 	if err != nil {
-		log.Fatalf("failed to map: %v", err)
+		return entities.ContratoEvento{},
+			utils.NewResponseError(fmt.Sprintf("failed to map: %v", err), http.StatusInternalServerError)
 	}
-
-	log.Println(contractEvent.DataCriacao)
 
 	contractEvent, err = service.contractEventRepository.CreateContractEvent(contractEvent)
 	if err != nil {
-		return contractEvent, err
+		return entities.ContratoEvento{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 	}
 
-	return contractEvent, nil
+	return contractEvent, utils.ResponseError{}
 }
 
 func (service *contractEventService) FindContractEventsByContractID(contractID string) []entities.ContratoEvento {

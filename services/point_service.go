@@ -1,21 +1,22 @@
 package services
 
 import (
-	"log"
+	"fmt"
+	"net/http"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories"
+	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )
 
 // PointService representa a interface de pointService.
 type PointService interface {
-	CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, error)
-	UpdatePoint(pointDTO dtos.PointUpdateDTO) (entities.Ponto, error)
+	CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, utils.ResponseError)
 	FindPointByID(pointID string) entities.Ponto
 	FindPointByClientIDAndAddressID(clientID string, addressID string) entities.Ponto
-	DeletePoint(point entities.Ponto) error
+	DeletePoint(pointID string) utils.ResponseError
 	DeletePointsByClientID(clientID string) error
 	DeletePointsByAddressID(addressID string) error
 	FindPoints(clientID string, addressID string) []entities.Ponto
@@ -26,38 +27,40 @@ type pointService struct {
 	contractService ContractService
 }
 
-func (service *pointService) CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, error) {
+func (service *pointService) CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, utils.ResponseError) {
 	point := entities.Ponto{}
 
 	err := smapping.FillStruct(&point, smapping.MapFields(&pointDTO))
 	if err != nil {
-		log.Fatalf("failed to map: %v", err)
+		return entities.Ponto{},
+			utils.NewResponseError(fmt.Sprintf("failed to map: %v", err), http.StatusInternalServerError)
 	}
 
-	point, err = service.pointRepository.CreatePoint(point)
-	if err != nil {
-		return point, err
+	pointAlreadyExists := service.pointRepository.FindPointByClientIDAndAddressID(
+		point.ClienteID, point.EnderecoID)
+
+	switch {
+	case pointAlreadyExists.DataRemocao.Valid:
+		point.ID = pointAlreadyExists.ID
+
+		point, err := service.pointRepository.UpdatePoint(point)
+		if err != nil {
+			return entities.Ponto{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+		}
+
+		return point, utils.ResponseError{}
+
+	case (pointAlreadyExists != entities.Ponto{}):
+		return entities.Ponto{}, utils.NewResponseError(utils.PointAlreadyExists, http.StatusConflict)
+
+	default:
+		point, err := service.pointRepository.CreatePoint(point)
+		if err != nil {
+			return entities.Ponto{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+		}
+
+		return point, utils.ResponseError{}
 	}
-
-	return point, nil
-}
-
-func (service *pointService) UpdatePoint(pointDTO dtos.PointUpdateDTO) (entities.Ponto, error) {
-	point := entities.Ponto{}
-
-	err := smapping.FillStruct(&point, smapping.MapFields(&pointDTO))
-	if err != nil {
-		log.Fatalf("failed to map: %v", err)
-	}
-
-	point.DataRemocao.Scan(nil)
-
-	point, err = service.pointRepository.UpdatePoint(point)
-	if err != nil {
-		return point, err
-	}
-
-	return point, nil
 }
 
 func (service *pointService) FindPointByID(pointID string) entities.Ponto {
@@ -68,12 +71,27 @@ func (service *pointService) FindPointByClientIDAndAddressID(clientID string, ad
 	return service.pointRepository.FindPointByClientIDAndAddressID(clientID, addressID)
 }
 
-func (service *pointService) DeletePoint(point entities.Ponto) error {
-	return service.pointRepository.DeletePoint(point)
+func (service *pointService) DeletePoint(pointID string) utils.ResponseError {
+	pointFound := service.pointRepository.FindPointByID(pointID)
+
+	if pointFound == (entities.Ponto{}) {
+		return utils.NewResponseError(utils.PointNotFound, http.StatusNotFound)
+	}
+
+	err := service.pointRepository.DeletePoint(pointFound)
+	if err != nil {
+		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+	}
+
+	return utils.ResponseError{}
 }
 
 func (service *pointService) DeletePointsByClientID(clientID string) error {
 	points := service.pointRepository.FindPointsByClientID(clientID)
+
+	if len(points) == 0 {
+		return nil
+	}
 
 	var err error
 
@@ -94,6 +112,10 @@ func (service *pointService) DeletePointsByClientID(clientID string) error {
 
 func (service *pointService) DeletePointsByAddressID(addressID string) error {
 	points := service.pointRepository.FindPointsByAddressID(addressID)
+
+	if len(points) == 0 {
+		return nil
+	}
 
 	var err error
 

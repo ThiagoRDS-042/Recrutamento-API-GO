@@ -173,11 +173,12 @@ func (controller *pointController) FindPoints(ctx *gin.Context) {
 }
 
 // NewPointController cria uma nova isnancia de PointController.
-func NewPointController() PointController {
+func NewPointController(pointService services.PointService, clientService services.ClientService, addressService services.AddressService, contractService services.ContractService) PointController {
+
 	return &pointController{
-		pointService:    services.NewPointService(),
-		clientService:   services.NewClientService(),
-		addressService:  services.NewAddressService(),
-		contractService: services.NewContractService(),
+		pointService:    pointService,
+		clientService:   clientService,
+		addressService:  addressService,
+		contractService: contractService,
 	}
 }

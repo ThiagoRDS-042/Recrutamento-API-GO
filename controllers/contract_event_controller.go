@@ -54,9 +54,9 @@ func (controller *contractEventController) FindContractEventsByContractID(ctx *g
 }
 
 // NewContractEventController cria uma nova isnancia de ContractEventController.
-func NewContractEventController() ContractEventController {
+func NewContractEventController(contractEventService services.ContractEventService, contractService services.ContractService) ContractEventController {
 	return &contractEventController{
-		contractEventService: services.NewContractEventService(),
-		contractService:      services.NewContractService(),
+		contractEventService: contractEventService,
+		contractService:      contractService,
 	}
 }

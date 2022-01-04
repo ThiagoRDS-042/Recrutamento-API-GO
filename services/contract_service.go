@@ -81,8 +81,8 @@ func (service *contractService) FindContracts(clientID string, addressID string)
 }
 
 // NewContractService cria uma nova instancia de ContractService.
-func NewContractService() ContractService {
+func NewContractService(contractRepository repositories.ContractRepository) ContractService {
 	return &contractService{
-		contractRepository: repositories.NewContractRepository(),
+		contractRepository: contractRepository,
 	}
 }

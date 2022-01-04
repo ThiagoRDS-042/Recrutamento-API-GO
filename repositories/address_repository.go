@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"gorm.io/gorm"
 )
@@ -108,8 +107,8 @@ func (db *addressConnection) FindAddresses(street string, neighborhood string, n
 }
 
 // NewAddressRepository cria uma nova instancia de AddressRepository.
-func NewAddressRepository() AddressRepository {
+func NewAddressRepository(database *gorm.DB) AddressRepository {
 	return &addressConnection{
-		connection: database.GetDB(),
+		connection: database,
 	}
 }

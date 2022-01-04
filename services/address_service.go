@@ -74,8 +74,8 @@ func (service *addressService) FindAddresses(street string, neighborhood string,
 }
 
 // NewAddressService cria uma nova instancia de AddressService.
-func NewAddressService() AddressService {
+func NewAddressService(addressRepository repositories.AddressRepository) AddressService {
 	return &addressService{
-		addressRepository: repositories.NewAddressRepository(),
+		addressRepository: addressRepository,
 	}
 }

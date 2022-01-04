@@ -258,9 +258,9 @@ func (controller *addressController) FindAddress(ctx *gin.Context) {
 }
 
 // NewAddressController cria uma nova isnancia de AddressController.
-func NewAddressController() AddressController {
+func NewAddressController(addressService services.AddressService, pointService services.PointService) AddressController {
 	return &addressController{
-		addressService: services.NewAddressService(),
-		pointService:   services.NewPointService(),
+		addressService: addressService,
+		pointService:   pointService,
 	}
 }

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
@@ -9,7 +8,6 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/mashingan/smapping"
 )
 
 // ClientController representa o contracto de ClientController.
@@ -23,7 +21,6 @@ type ClientController interface {
 
 type clientController struct {
 	clientService services.ClientService
-	pointService  services.PointService
 }
 
 // CreateClient godoc
@@ -46,41 +43,15 @@ func (controller *clientController) CreateClient(ctx *gin.Context) {
 		return
 	}
 
-	clientAlreadyExists := controller.clientService.FindClientByName(clientDTO.Nome)
-
-	switch {
-	case clientAlreadyExists.DataRemocao.Valid:
-		clientUpdateDTO := dtos.ClientUpdateDTO{}
-		err := smapping.FillStruct(&clientUpdateDTO, smapping.MapFields(&clientDTO))
-		if err != nil {
-			log.Fatalf("failed to map: %v", err)
-		}
-
-		clientUpdateDTO.ID = clientAlreadyExists.ID
-
-		client, err := controller.clientService.UpdateClient(clientUpdateDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, client)
-
-	case (clientAlreadyExists != entities.Cliente{}):
-		response := utils.NewResponse(utils.NameAlreadyExists)
-		ctx.JSON(http.StatusConflict, response)
-
-	default:
-		client, err := controller.clientService.CreateClient(clientDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, client)
+	client, responseError := controller.clientService.CreateClient(clientDTO)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
+		return
 	}
+
+	ctx.JSON(http.StatusCreated, client)
+
 }
 
 // UpdateClient godoc
@@ -107,48 +78,12 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 
 	clientID := ctx.Param("id")
 
-	clientFound := controller.clientService.FindClientByID(clientID)
-
-	if clientFound == (entities.Cliente{}) {
-		response := utils.NewResponse(utils.ClientNotFound)
-		ctx.JSON(http.StatusNotFound, response)
-		return
-	}
-
 	clientDTO.ID = clientID
 
-	if clientDTO.Nome == "" {
-		clientDTO.Nome = clientFound.Nome
-	} else {
-		if !dtos.IsValidTextLenght(clientDTO.Nome) {
-			response := utils.NewResponse("nome: " + utils.InvalidNumberOfCaracter)
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-	}
-
-	if clientDTO.Tipo == "" {
-		clientDTO.Tipo = clientFound.Tipo
-	} else {
-		if !dtos.IsValidClientType(clientDTO.Tipo) {
-			response := utils.NewResponse("tipo: " + utils.InvalidClientType)
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-	}
-
-	clientAlreadyExists := controller.clientService.FindClientByName(clientDTO.Nome)
-
-	if (clientAlreadyExists != entities.Cliente{}) && (clientFound.ID != clientAlreadyExists.ID) {
-		response := utils.NewResponse(utils.NameAlreadyExists)
-		ctx.JSON(http.StatusConflict, response)
-		return
-	}
-
-	client, err := controller.clientService.UpdateClient(clientDTO)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+	client, responseError := controller.clientService.UpdateClient(clientDTO)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -193,25 +128,10 @@ func (controller *clientController) FindClientByID(ctx *gin.Context) {
 func (controller *clientController) DeleteClient(ctx *gin.Context) {
 	clientID := ctx.Param("id")
 
-	clientFound := controller.clientService.FindClientByID(clientID)
-
-	if clientFound == (entities.Cliente{}) {
-		response := utils.NewResponse(utils.ClientNotFound)
-		ctx.JSON(http.StatusNotFound, response)
-		return
-	}
-
-	err := controller.clientService.DeleteClient(clientFound)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	err = controller.pointService.DeletePointsByClientID(clientFound.ID)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+	responseError := controller.clientService.DeleteClient(clientID)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -249,9 +169,8 @@ func (controller *clientController) FindClients(ctx *gin.Context) {
 }
 
 // NewClientController cria uma nova isnancia de ClientController.
-func NewClientController(clientService services.ClientService, pointService services.PointService) ClientController {
+func NewClientController(clientService services.ClientService) ClientController {
 	return &clientController{
 		clientService: clientService,
-		pointService:  pointService,
 	}
 }

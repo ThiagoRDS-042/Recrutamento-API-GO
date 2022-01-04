@@ -41,21 +41,21 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 	pointDTO := dtos.PointCreateDTO{}
 
 	if err := ctx.ShouldBindJSON(&pointDTO); err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	clientExists := controller.clientService.FindClientByID(pointDTO.ClienteID)
 	if clientExists == (entities.Cliente{}) {
-		response := utils.BuildErrorResponse(utils.ClientNotFound)
+		response := utils.NewResponse(utils.ClientNotFound)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	addressExists := controller.addressService.FindAddressByID(pointDTO.EnderecoID)
 	if addressExists == (entities.Endereco{}) {
-		response := utils.BuildErrorResponse(utils.AddressNotFound)
+		response := utils.NewResponse(utils.AddressNotFound)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -74,7 +74,7 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 		pointUpdateDTO.ID = pointAlreadyExists.ID
 		point, err := controller.pointService.UpdatePoint(pointUpdateDTO)
 		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
+			response := utils.NewResponse(err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -82,13 +82,13 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 		ctx.JSON(http.StatusCreated, point)
 
 	case (pointAlreadyExists != entities.Ponto{}):
-		response := utils.BuildErrorResponse(utils.PointAlreadyExists)
+		response := utils.NewResponse(utils.PointAlreadyExists)
 		ctx.JSON(http.StatusConflict, response)
 
 	default:
 		point, err := controller.pointService.CreatePoint(pointDTO)
 		if err != nil {
-			response := utils.BuildErrorResponse(err.Error())
+			response := utils.NewResponse(err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -114,21 +114,21 @@ func (controller *pointController) DeletePoint(ctx *gin.Context) {
 	pointFound := controller.pointService.FindPointByID(pointID)
 
 	if pointFound == (entities.Ponto{}) {
-		response := utils.BuildErrorResponse(utils.PointNotFound)
+		response := utils.NewResponse(utils.PointNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
 
 	err := controller.pointService.DeletePoint(pointFound)
 	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	err = controller.contractService.DeleteContractByPontoID(pointFound.ID)
 	if err != nil {
-		response := utils.BuildErrorResponse(err.Error())
+		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -154,7 +154,7 @@ func (controller *pointController) FindPoints(ctx *gin.Context) {
 	points := controller.pointService.FindPoints(clientID, addressID)
 
 	if len(points) == 0 {
-		response := utils.BuildErrorResponse(utils.PointNotFound)
+		response := utils.NewResponse(utils.PointNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}

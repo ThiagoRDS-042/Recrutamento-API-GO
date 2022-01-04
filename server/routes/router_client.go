@@ -2,21 +2,11 @@ package routes
 
 import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/controllers"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/gin-gonic/gin"
 )
 
-// Client
-var (
-	clientRepository = repositories.NewClientRepository(db)
-	clientService    = services.NewClientService(clientRepository)
-)
-
 // ClientRouterConfig define as configurações das rotas dos clientes.
-func ClientRouterConfig(router *gin.RouterGroup) {
-	clientController := controllers.NewClientController(clientService, pointService)
-
+func ClientRouterConfig(router *gin.RouterGroup, clientController controllers.ClientController) {
 	clients := router.Group("clientes")
 	{
 		clients.POST("/", clientController.CreateClient)

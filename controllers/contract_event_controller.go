@@ -35,7 +35,7 @@ func (controller *contractEventController) FindContractEventsByContractID(ctx *g
 	contractEvents := controller.contractEventService.FindContractEventsByContractID(contractID)
 
 	if len(contractEvents) == 0 {
-		response := utils.BuildErrorResponse(utils.HitoryOfContractNotFound)
+		response := utils.NewResponse(utils.HistoryOfContractNotFound)
 		ctx.JSON(http.StatusNotFound, response)
 		return
 	}

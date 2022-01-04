@@ -2,16 +2,30 @@ package utils
 
 import "strings"
 
-// Response usada como corpo estaico para a resposta de error em json.
+// Response usada como corpo estatico para a resposta de error em json, que contém mensagem.
 type Response struct {
-	Message interface{} `json:"message"`
+	Message []string `json:"message"`
 }
 
-// BuildErrorResponse injeta um valor dinamico na resposta de error em json.
-func BuildErrorResponse(message string) Response {
-	splitedSMessage := strings.Split(message, "\n")
+// NewResponse cria uma nova instancia de Response com a mensgaem passada.
+func NewResponse(message string) Response {
+	splitedMessage := strings.Split(message, "\n")
 
 	return Response{
-		Message: splitedSMessage,
+		Message: splitedMessage,
+	}
+}
+
+// ResponseError usada como corpo estatico para a resposta de error em json, que contém mensagem e codigo de estado.
+type ResponseError struct {
+	Message    string `json:"message"`
+	StatusCode int    `json:"status_code"`
+}
+
+// NewResponseError cria uma nova instancia de ResponseError com a mensgaem e codigo de estado passado.
+func NewResponseError(message string, statusCode int) ResponseError {
+	return ResponseError{
+		Message:    message,
+		StatusCode: statusCode,
 	}
 }

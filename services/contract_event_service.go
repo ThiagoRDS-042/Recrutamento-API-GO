@@ -42,8 +42,8 @@ func (service *contractEventService) FindContractEventsByContractID(contractID s
 }
 
 // NewContractEventService cria uma nova instancia de ContractEventService.
-func NewContractEventService() ContractEventService {
+func NewContractEventService(contractEventRepository repositories.ContractEventRepository) ContractEventService {
 	return &contractEventService{
-		contractEventRepository: repositories.NewContractEventRepository(),
+		contractEventRepository: contractEventRepository,
 	}
 }

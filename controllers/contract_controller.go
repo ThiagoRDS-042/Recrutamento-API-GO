@@ -24,7 +24,7 @@ type ContractController interface {
 type contractController struct {
 	contractService      services.ContractService
 	contractEventService services.ContractEventService
-	pontoService         services.PointService
+	pointService         services.PointService
 }
 
 // CreateContract godoc
@@ -47,7 +47,7 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 		return
 	}
 
-	pontoExists := controller.pontoService.FindPointByID(contractDTO.PontoID)
+	pontoExists := controller.pointService.FindPointByID(contractDTO.PontoID)
 	if pontoExists == (entities.Ponto{}) {
 		response := utils.BuildErrorResponse(utils.PointNotFound)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -280,10 +280,10 @@ func (controller *contractController) FindContracts(ctx *gin.Context) {
 }
 
 // NewContractController cria uma nova isnancia de ContractController.
-func NewContractController() ContractController {
+func NewContractController(contractService services.ContractService, contractEventService services.ContractEventService, pointService services.PointService) ContractController {
 	return &contractController{
-		contractService:      services.NewContractService(),
-		contractEventService: services.NewContractEventService(),
-		pontoService:         services.NewPointService(),
+		contractService:      contractService,
+		contractEventService: contractEventService,
+		pointService:         pointService,
 	}
 }

@@ -3,7 +3,6 @@ package repositories
 import (
 	"log"
 
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"gorm.io/gorm"
 )
@@ -41,8 +40,8 @@ func (db *contractEventConnection) FindContractEventsByContractID(contractID str
 }
 
 // NewContractEventRepository cria uma nova instancia de ContractEventRepository.
-func NewContractEventRepository() ContractEventRepository {
+func NewContractEventRepository(database *gorm.DB) ContractEventRepository {
 	return &contractEventConnection{
-		connection: database.GetDB(),
+		connection: database,
 	}
 }

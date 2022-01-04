@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"gorm.io/gorm"
 )
@@ -122,8 +121,8 @@ func (db *pointConnection) FindPoints(clientID string, addressID string) []entit
 }
 
 // NewPointRepository cria uma nova instancia de PointRepository.
-func NewPointRepository() PointRepository {
+func NewPointRepository(database *gorm.DB) PointRepository {
 	return &pointConnection{
-		connection: database.GetDB(),
+		connection: database,
 	}
 }

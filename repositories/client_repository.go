@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"gorm.io/gorm"
 )
@@ -100,8 +99,8 @@ func (db *clientConnection) FindClients(clientName string, clientType string) []
 }
 
 // NewClientRepository cria uma nova instancia de ClientRepository.
-func NewClientRepository() ClientRepository {
+func NewClientRepository(database *gorm.DB) ClientRepository {
 	return &clientConnection{
-		connection: database.GetDB(),
+		connection: database,
 	}
 }

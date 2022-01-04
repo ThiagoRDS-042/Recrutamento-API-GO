@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"gorm.io/gorm"
 )
@@ -99,8 +98,8 @@ func (db *contractConnection) FindContracts(clientID string, addressID string) [
 }
 
 // NewContractRepository cria uma nova instancia de ContractRepository.
-func NewContractRepository() ContractRepository {
+func NewContractRepository(database *gorm.DB) ContractRepository {
 	return &contractConnection{
-		connection: database.GetDB(),
+		connection: database,
 	}
 }

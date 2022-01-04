@@ -249,9 +249,9 @@ func (controller *clientController) FindClients(ctx *gin.Context) {
 }
 
 // NewClientController cria uma nova isnancia de ClientController.
-func NewClientController() ClientController {
+func NewClientController(clientService services.ClientService, pointService services.PointService) ClientController {
 	return &clientController{
-		clientService: services.NewClientService(),
-		pointService:  services.NewPointService(),
+		clientService: clientService,
+		pointService:  pointService,
 	}
 }

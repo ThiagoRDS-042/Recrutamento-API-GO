@@ -117,9 +117,9 @@ func (service *pointService) FindPoints(clientID string, addressID string) []ent
 }
 
 // NewPointService cria uma nova instancia de PointService.
-func NewPointService() PointService {
+func NewPointService(pointRepository repositories.PointRepository, contractService ContractService) PointService {
 	return &pointService{
-		pointRepository: repositories.NewPointRepository(),
-		contractService: NewContractService(),
+		pointRepository: pointRepository,
+		contractService: contractService,
 	}
 }

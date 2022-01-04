@@ -74,8 +74,8 @@ func (service *clientService) FindClients(clientName string, clientType string) 
 }
 
 // NewClientService cria uma nova instancia de ClientService.
-func NewClientService() ClientService {
+func NewClientService(clientRepository repositories.ClientRepository) ClientService {
 	return &clientService{
-		clientRepository: repositories.NewClientRepository(),
+		clientRepository: clientRepository,
 	}
 }

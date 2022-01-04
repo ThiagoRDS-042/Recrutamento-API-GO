@@ -1,8 +1,11 @@
 package routes
 
 import (
+	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	"github.com/gin-gonic/gin"
 )
+
+var db = database.GetDB()
 
 // ConfigRoutes define as configurações das rotas.
 func ConfigRoutes(router *gin.Engine) *gin.Engine {
@@ -14,8 +17,8 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		PointRouterConfig(main)
 		ContractRouterConfig(main)
 		ContractEventRouterConfig(main)
-		SwaggerRouterConfig(main)
 	}
+	SwaggerRouterConfig(router.Group(""))
 
 	return router
 }

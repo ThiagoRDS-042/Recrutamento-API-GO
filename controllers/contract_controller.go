@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
@@ -9,7 +8,6 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/mashingan/smapping"
 )
 
 // ContractController representa o contracto de contractController.
@@ -56,65 +54,24 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 
 	contractDTO.Estado = entities.VIGOR
 
-	contractAlreadyExists := controller.contractService.FindContractByPontoID(contractDTO.PontoID)
+	contract, responseError := controller.contractService.CreateContract(contractDTO)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
+		return
+	}
 
-	switch {
-	case contractAlreadyExists.DataRemocao.Valid:
-		contractUpdateDTO := dtos.ContractUpdateDTO{}
-		err := smapping.FillStruct(&contractUpdateDTO, smapping.MapFields(&contractDTO))
-		if err != nil {
-			log.Fatalf("failed to map: %v", err)
-		}
+	contractEventDTO := dtos.ContratoEventCreateDTO{
+		ContratoID:      contract.ID,
+		EstadoAnterior:  contract.Estado,
+		EstadoPosterior: contract.Estado,
+	}
 
-		contractUpdateDTO.ID = contractAlreadyExists.ID
-		contract, err := controller.contractService.UpdateContract(contractUpdateDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		contractEventDTO := dtos.ContratoEventCreateDTO{
-			ContratoID:      contract.ID,
-			EstadoAnterior:  contract.Estado,
-			EstadoPosterior: contract.Estado,
-		}
-
-		_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, contract)
-
-	case (contractAlreadyExists != entities.Contrato{}):
-		response := utils.NewResponse(utils.ContractAlreadyExists)
-		ctx.JSON(http.StatusConflict, response)
-
-	default:
-		contract, err := controller.contractService.CreateContract(contractDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		contractEventDTO := dtos.ContratoEventCreateDTO{
-			ContratoID:      contract.ID,
-			EstadoAnterior:  contract.Estado,
-			EstadoPosterior: contract.Estado,
-		}
-
-		_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
-		if err != nil {
-			response := utils.NewResponse(err.Error())
-			ctx.JSON(http.StatusBadRequest, response)
-			return
-		}
-
-		ctx.JSON(http.StatusCreated, contract)
+	_, responseError = controller.contractEventService.CreateContractEvent(contractEventDTO)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
+		return
 	}
 }
 
@@ -142,43 +99,25 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 
 	contractID := ctx.Param("id")
 
-	contractFound := controller.contractService.FindContractByID(contractID)
-
-	if contractFound == (entities.Contrato{}) {
-		response := utils.NewResponse(utils.ContractNotFound)
-		ctx.JSON(http.StatusNotFound, response)
-		return
-	}
-
-	if !dtos.IsAuthorized(contractFound.Estado, contractDTO.Estado) {
-		response := utils.NewResponse(utils.Unathorized)
-		ctx.JSON(http.StatusUnauthorized, response)
-		return
-	}
-
 	contractDTO.ID = contractID
 
-	if contractDTO.PontoID == "" {
-		contractDTO.PontoID = contractFound.PontoID
-	}
-
-	contract, err := controller.contractService.UpdateContract(contractDTO)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+	contract, oldState, responseError := controller.contractService.UpdateContract(contractDTO)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
 		return
 	}
 
 	contractEventDTO := dtos.ContratoEventCreateDTO{
 		ContratoID:      contract.ID,
-		EstadoAnterior:  contractFound.Estado,
+		EstadoAnterior:  oldState,
 		EstadoPosterior: contract.Estado,
 	}
 
-	_, err = controller.contractEventService.CreateContractEvent(contractEventDTO)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+	_, responseError = controller.contractEventService.CreateContractEvent(contractEventDTO)
+	if len(responseError.Message) != 0 {
+		response := utils.NewResponse(responseError.Message)
+		ctx.JSON(responseError.StatusCode, response)
 		return
 	}
 

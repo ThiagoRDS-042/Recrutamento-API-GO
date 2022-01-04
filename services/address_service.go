@@ -23,7 +23,6 @@ type AddressService interface {
 
 type addressService struct {
 	addressRepository repositories.AddressRepository
-	pointService      PointService
 }
 
 func (service *addressService) CreateAddress(addressDTO dtos.AddressCreateDTO) (entities.Endereco, utils.ResponseError) {
@@ -135,11 +134,6 @@ func (service *addressService) DeleteAddress(addressID string) utils.ResponseErr
 		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 	}
 
-	err = service.pointService.DeletePointsByAddressID(addressFound.ID)
-	if err != nil {
-		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
-	}
-
 	return utils.ResponseError{}
 }
 
@@ -148,9 +142,8 @@ func (service *addressService) FindAddresses(street string, neighborhood string,
 }
 
 // NewAddressService cria uma nova instancia de AddressService.
-func NewAddressService(addressRepository repositories.AddressRepository, pointService PointService) AddressService {
+func NewAddressService(addressRepository repositories.AddressRepository) AddressService {
 	return &addressService{
 		addressRepository: addressRepository,
-		pointService:      pointService,
 	}
 }

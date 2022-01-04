@@ -19,8 +19,6 @@ type PointController interface {
 
 type pointController struct {
 	pointService    services.PointService
-	clientService   services.ClientService
-	addressService  services.AddressService
 	contractService services.ContractService
 }
 
@@ -41,20 +39,6 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&pointDTO); err != nil {
 		response := utils.NewResponse(err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	clientExists := controller.clientService.FindClientByID(pointDTO.ClienteID)
-	if clientExists == (entities.Cliente{}) {
-		response := utils.NewResponse(utils.ClientNotFound)
-		ctx.JSON(http.StatusNotFound, response)
-		return
-	}
-
-	addressExists := controller.addressService.FindAddressByID(pointDTO.EnderecoID)
-	if addressExists == (entities.Endereco{}) {
-		response := utils.NewResponse(utils.AddressNotFound)
-		ctx.JSON(http.StatusNotFound, response)
 		return
 	}
 
@@ -136,12 +120,10 @@ func (controller *pointController) FindPoints(ctx *gin.Context) {
 }
 
 // NewPointController cria uma nova isnancia de PointController.
-func NewPointController(pointService services.PointService, clientService services.ClientService, addressService services.AddressService, contractService services.ContractService) PointController {
+func NewPointController(pointService services.PointService, contractService services.ContractService) PointController {
 
 	return &pointController{
 		pointService:    pointService,
-		clientService:   clientService,
-		addressService:  addressService,
 		contractService: contractService,
 	}
 }

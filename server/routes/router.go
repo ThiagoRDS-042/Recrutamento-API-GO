@@ -13,32 +13,26 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 	// Database
 	db := database.GetDB()
 
-	// Contract
-	contractRepository := repositories.NewContractRepository(db)
-	contractService := services.NewContractService(contractRepository)
-
-	// Point
-	pointRepository := repositories.NewPointRepository(db)
-	pointService := services.NewPointService(pointRepository, contractService)
-
-	// Cient
+	// Repositories
 	clientRepository := repositories.NewClientRepository(db)
-	clientService := services.NewClientService(clientRepository, pointService)
-
-	// Address
 	addressRepository := repositories.NewAddressRepository(db)
-	addressService := services.NewAddressService(addressRepository, pointService)
-
-	// ContractEvent
+	pointRepository := repositories.NewPointRepository(db)
+	contractRepository := repositories.NewContractRepository(db)
 	contractEventRepository := repositories.NewContractEventRepository(db)
+
+	// Services
+	clientService := services.NewClientService(clientRepository)
+	addressService := services.NewAddressService(addressRepository)
 	contractEventService := services.NewContractEventService(contractEventRepository)
+	contractService := services.NewContractService(contractRepository, pointRepository, contractEventService)
+	pointService := services.NewPointService(pointRepository, clientRepository, addressRepository, contractService)
 
 	// Controllers
-	clientController := controllers.NewClientController(clientService)
-	addressController := controllers.NewAddressController(addressService)
-	pointController := controllers.NewPointController(pointService, clientService, addressService, contractService)
-	contractController := controllers.NewContractController(contractService, contractEventService, pointService)
-	contractEventController := controllers.NewContractEventController(contractEventService, contractService)
+	clientController := controllers.NewClientController(clientService, pointService)
+	addressController := controllers.NewAddressController(addressService, pointService)
+	pointController := controllers.NewPointController(pointService, contractService)
+	contractController := controllers.NewContractController(contractService)
+	contractEventController := controllers.NewContractEventController(contractEventService)
 
 	router.SetTrustedProxies([]string{"192.168.1.2"})
 	main := router.Group("api/v1")

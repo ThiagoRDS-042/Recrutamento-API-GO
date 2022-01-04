@@ -17,14 +17,16 @@ type PointService interface {
 	FindPointByID(pointID string) entities.Ponto
 	FindPointByClientIDAndAddressID(clientID string, addressID string) entities.Ponto
 	DeletePoint(pointID string) utils.ResponseError
-	DeletePointsByClientID(clientID string) error
-	DeletePointsByAddressID(addressID string) error
+	DeletePointsByClientID(clientID string) utils.ResponseError
+	DeletePointsByAddressID(addressID string) utils.ResponseError
 	FindPoints(clientID string, addressID string) []entities.Ponto
 }
 
 type pointService struct {
-	pointRepository repositories.PointRepository
-	contractService ContractService
+	pointRepository   repositories.PointRepository
+	clientRepository  repositories.ClientRepository
+	addressReporitory repositories.AddressRepository
+	contractService   ContractService
 }
 
 func (service *pointService) CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, utils.ResponseError) {
@@ -34,6 +36,16 @@ func (service *pointService) CreatePoint(pointDTO dtos.PointCreateDTO) (entities
 	if err != nil {
 		return entities.Ponto{},
 			utils.NewResponseError(fmt.Sprintf("failed to map: %v", err), http.StatusInternalServerError)
+	}
+
+	clientExists := service.clientRepository.FindClientByID(pointDTO.ClienteID)
+	if clientExists == (entities.Cliente{}) {
+		return entities.Ponto{}, utils.NewResponseError(utils.ClientNotFound, http.StatusNotFound)
+	}
+
+	addressExists := service.addressReporitory.FindAddressByID(pointDTO.EnderecoID)
+	if addressExists == (entities.Endereco{}) {
+		return entities.Ponto{}, utils.NewResponseError(utils.AddressNotFound, http.StatusNotFound)
 	}
 
 	pointAlreadyExists := service.pointRepository.FindPointByClientIDAndAddressID(
@@ -86,11 +98,11 @@ func (service *pointService) DeletePoint(pointID string) utils.ResponseError {
 	return utils.ResponseError{}
 }
 
-func (service *pointService) DeletePointsByClientID(clientID string) error {
+func (service *pointService) DeletePointsByClientID(clientID string) utils.ResponseError {
 	points := service.pointRepository.FindPointsByClientID(clientID)
 
 	if len(points) == 0 {
-		return nil
+		return utils.NewResponseError(utils.PointNotFound, http.StatusNotFound)
 	}
 
 	var err error
@@ -98,23 +110,23 @@ func (service *pointService) DeletePointsByClientID(clientID string) error {
 	for _, point := range points {
 		err = service.pointRepository.DeletePoint(point)
 		if err != nil {
-			return err
+			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 
 		err = service.contractService.DeleteContractByPontoID(point.ID)
 		if err != nil {
-			return err
+			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 	}
 
-	return err
+	return utils.ResponseError{}
 }
 
-func (service *pointService) DeletePointsByAddressID(addressID string) error {
+func (service *pointService) DeletePointsByAddressID(addressID string) utils.ResponseError {
 	points := service.pointRepository.FindPointsByAddressID(addressID)
 
 	if len(points) == 0 {
-		return nil
+		return utils.NewResponseError(utils.PointNotFound, http.StatusNotFound)
 	}
 
 	var err error
@@ -122,16 +134,16 @@ func (service *pointService) DeletePointsByAddressID(addressID string) error {
 	for _, point := range points {
 		err = service.pointRepository.DeletePoint(point)
 		if err != nil {
-			return err
+			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 
 		err = service.contractService.DeleteContractByPontoID(point.ID)
 		if err != nil {
-			return err
+			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 	}
 
-	return err
+	return utils.ResponseError{}
 }
 
 func (service *pointService) FindPoints(clientID string, addressID string) []entities.Ponto {
@@ -139,9 +151,11 @@ func (service *pointService) FindPoints(clientID string, addressID string) []ent
 }
 
 // NewPointService cria uma nova instancia de PointService.
-func NewPointService(pointRepository repositories.PointRepository, contractService ContractService) PointService {
+func NewPointService(pointRepository repositories.PointRepository, clientRepository repositories.ClientRepository, addressReporitory repositories.AddressRepository, contractService ContractService) PointService {
 	return &pointService{
-		pointRepository: pointRepository,
-		contractService: contractService,
+		pointRepository:   pointRepository,
+		contractService:   contractService,
+		clientRepository:  clientRepository,
+		addressReporitory: addressReporitory,
 	}
 }

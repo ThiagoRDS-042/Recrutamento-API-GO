@@ -14,7 +14,7 @@ import (
 // ContractService representa a interface de contractService.
 type ContractService interface {
 	CreateContract(contractDTO dtos.ContractCreateDTO) (entities.Contrato, utils.ResponseError)
-	UpdateContract(contractDTO dtos.ContractUpdateDTO) (entities.Contrato, entities.ContractState, utils.ResponseError)
+	UpdateContract(contractDTO dtos.ContractUpdateDTO) (entities.Contrato, utils.ResponseError)
 	FindContractByID(contractID string) entities.Contrato
 	FindContractByPontoID(pontoID string) entities.Contrato
 	DeleteContract(contract entities.Contrato) error
@@ -23,7 +23,9 @@ type ContractService interface {
 }
 
 type contractService struct {
-	contractRepository repositories.ContractRepository
+	contractRepository   repositories.ContractRepository
+	pointRepository      repositories.PointRepository
+	contractEventService ContractEventService
 }
 
 func (service *contractService) CreateContract(contractDTO dtos.ContractCreateDTO) (entities.Contrato, utils.ResponseError) {
@@ -33,6 +35,11 @@ func (service *contractService) CreateContract(contractDTO dtos.ContractCreateDT
 	if err != nil {
 		return entities.Contrato{},
 			utils.NewResponseError(fmt.Sprintf("failed to map: %v", err), http.StatusInternalServerError)
+	}
+
+	pontoExists := service.pointRepository.FindPointByID(contract.PontoID)
+	if pontoExists == (entities.Ponto{}) {
+		return entities.Contrato{}, utils.NewResponseError(utils.PointNotFound, http.StatusNotFound)
 	}
 
 	contractAlreadyExists := service.contractRepository.FindContractByPontoID(contract.PontoID)
@@ -46,6 +53,17 @@ func (service *contractService) CreateContract(contractDTO dtos.ContractCreateDT
 			return entities.Contrato{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 
+		contractEventDTO := dtos.ContratoEventCreateDTO{
+			ContratoID:      contract.ID,
+			EstadoAnterior:  contractAlreadyExists.Estado,
+			EstadoPosterior: contract.Estado,
+		}
+
+		_, responseError := service.contractEventService.CreateContractEvent(contractEventDTO)
+		if len(responseError.Message) != 0 {
+			return entities.Contrato{}, utils.NewResponseError(responseError.Message, responseError.StatusCode)
+		}
+
 		return contract, utils.ResponseError{}
 
 	case (contractAlreadyExists != entities.Contrato{}):
@@ -57,39 +75,58 @@ func (service *contractService) CreateContract(contractDTO dtos.ContractCreateDT
 			return entities.Contrato{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 
+		contractEventDTO := dtos.ContratoEventCreateDTO{
+			ContratoID:      contract.ID,
+			EstadoAnterior:  contract.Estado,
+			EstadoPosterior: contract.Estado,
+		}
+
+		_, responseError := service.contractEventService.CreateContractEvent(contractEventDTO)
+		if len(responseError.Message) != 0 {
+			return entities.Contrato{}, utils.NewResponseError(responseError.Message, responseError.StatusCode)
+		}
+
 		return contract, utils.ResponseError{}
 	}
 }
 
-func (service *contractService) UpdateContract(contractDTO dtos.ContractUpdateDTO) (entities.Contrato, entities.ContractState, utils.ResponseError) {
+func (service *contractService) UpdateContract(contractDTO dtos.ContractUpdateDTO) (entities.Contrato, utils.ResponseError) {
 	contract := entities.Contrato{}
 
 	err := smapping.FillStruct(&contract, smapping.MapFields(&contractDTO))
 	if err != nil {
-		return entities.Contrato{}, "",
+		return entities.Contrato{},
 			utils.NewResponseError(fmt.Sprintf("failed to map: %v", err), http.StatusInternalServerError)
 	}
 
 	contractFound := service.contractRepository.FindContractByID(contract.ID)
 	if contractFound == (entities.Contrato{}) {
-		return entities.Contrato{}, "", utils.NewResponseError(utils.ContractNotFound, http.StatusNotFound)
+		return entities.Contrato{}, utils.NewResponseError(utils.ContractNotFound, http.StatusNotFound)
 	}
 
 	if !dtos.IsAuthorized(contractFound.Estado, contractDTO.Estado) {
-		return entities.Contrato{}, "", utils.NewResponseError(utils.Unathorized, http.StatusForbidden)
+		return entities.Contrato{}, utils.NewResponseError(utils.Unathorized, http.StatusForbidden)
 	}
 
-	if contract.PontoID == "" {
-		contract.PontoID = contractFound.PontoID
-	}
-
+	contract.PontoID = contractFound.PontoID
 	contract.DataRemocao.Scan(nil)
 	contract, err = service.contractRepository.UpdateContract(contract)
 	if err != nil {
-		return entities.Contrato{}, "", utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+		return entities.Contrato{}, utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 	}
 
-	return contract, contractFound.Estado, utils.ResponseError{}
+	contractEventDTO := dtos.ContratoEventCreateDTO{
+		ContratoID:      contract.ID,
+		EstadoAnterior:  contractFound.Estado,
+		EstadoPosterior: contract.Estado,
+	}
+
+	_, responseError := service.contractEventService.CreateContractEvent(contractEventDTO)
+	if len(responseError.Message) != 0 {
+		return entities.Contrato{}, utils.NewResponseError(responseError.Message, responseError.StatusCode)
+	}
+
+	return contract, utils.ResponseError{}
 }
 
 func (service *contractService) FindContractByID(contractID string) entities.Contrato {
@@ -118,8 +155,10 @@ func (service *contractService) FindContracts(clientID string, addressID string)
 }
 
 // NewContractService cria uma nova instancia de ContractService.
-func NewContractService(contractRepository repositories.ContractRepository) ContractService {
+func NewContractService(contractRepository repositories.ContractRepository, pointRepository repositories.PointRepository, contractEventService ContractEventService) ContractService {
 	return &contractService{
-		contractRepository: contractRepository,
+		contractRepository:   contractRepository,
+		pointRepository:      pointRepository,
+		contractEventService: contractEventService,
 	}
 }

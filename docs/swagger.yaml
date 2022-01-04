@@ -79,7 +79,10 @@ definitions:
     type: object
   utils.Response:
     properties:
-      message: {}
+      message:
+        items:
+          type: string
+        type: array
     type: object
 host: localhost:2222
 info:

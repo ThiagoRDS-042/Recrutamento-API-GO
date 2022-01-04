@@ -1011,7 +1011,12 @@ var doc = `{
         "utils.Response": {
             "type": "object",
             "properties": {
-                "message": {}
+                "message": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
             }
         }
     }

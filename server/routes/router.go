@@ -21,16 +21,16 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 	contractEventRepository := repositories.NewContractEventRepository(db)
 
 	// Services
-	clientService := services.NewClientService(clientRepository)
-	addressService := services.NewAddressService(addressRepository)
 	contractEventService := services.NewContractEventService(contractEventRepository)
 	contractService := services.NewContractService(contractRepository, pointRepository, contractEventService)
 	pointService := services.NewPointService(pointRepository, clientRepository, addressRepository, contractService)
+	clientService := services.NewClientService(clientRepository, pointService)
+	addressService := services.NewAddressService(addressRepository, pointService)
 
 	// Controllers
-	clientController := controllers.NewClientController(clientService, pointService)
-	addressController := controllers.NewAddressController(addressService, pointService)
-	pointController := controllers.NewPointController(pointService, contractService)
+	clientController := controllers.NewClientController(clientService)
+	addressController := controllers.NewAddressController(addressService)
+	pointController := controllers.NewPointController(pointService)
 	contractController := controllers.NewContractController(contractService)
 	contractEventController := controllers.NewContractEventController(contractEventService)
 

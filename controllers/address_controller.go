@@ -21,7 +21,6 @@ type AddressController interface {
 
 type addressController struct {
 	addressService services.AddressService
-	pointService   services.PointService
 }
 
 // CreateAddress godoc
@@ -136,13 +135,6 @@ func (controller *addressController) DeleteAddress(ctx *gin.Context) {
 		return
 	}
 
-	responseError = controller.pointService.DeletePointsByAddressID(addressID)
-	if len(responseError.Message) != 0 {
-		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
-		return
-	}
-
 	ctx.JSON(http.StatusNoContent, entities.Endereco{})
 }
 
@@ -180,9 +172,8 @@ func (controller *addressController) FindAddress(ctx *gin.Context) {
 }
 
 // NewAddressController cria uma nova isnancia de AddressController.
-func NewAddressController(addressService services.AddressService, pointService services.PointService) AddressController {
+func NewAddressController(addressService services.AddressService) AddressController {
 	return &addressController{
 		addressService: addressService,
-		pointService:   pointService,
 	}
 }

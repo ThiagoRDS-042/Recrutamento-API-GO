@@ -95,6 +95,11 @@ func (service *pointService) DeletePoint(pointID string) utils.ResponseError {
 		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 	}
 
+	err = service.contractService.DeleteContractByPontoID(pointID)
+	if err != nil {
+		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+	}
+
 	return utils.ResponseError{}
 }
 

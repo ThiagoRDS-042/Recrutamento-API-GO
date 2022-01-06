@@ -21,7 +21,6 @@ type ClientController interface {
 
 type clientController struct {
 	clientService services.ClientService
-	pointService  services.PointService
 }
 
 // CreateClient godoc
@@ -135,13 +134,6 @@ func (controller *clientController) DeleteClient(ctx *gin.Context) {
 		return
 	}
 
-	responseError = controller.pointService.DeletePointsByClientID(clientID)
-	if len(responseError.Message) != 0 {
-		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
-		return
-	}
-
 	ctx.JSON(http.StatusNoContent, entities.Cliente{})
 }
 
@@ -176,9 +168,8 @@ func (controller *clientController) FindClients(ctx *gin.Context) {
 }
 
 // NewClientController cria uma nova isnancia de ClientController.
-func NewClientController(clientService services.ClientService, pointService services.PointService) ClientController {
+func NewClientController(clientService services.ClientService) ClientController {
 	return &clientController{
 		clientService: clientService,
-		pointService:  pointService,
 	}
 }

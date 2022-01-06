@@ -23,6 +23,7 @@ type ClientService interface {
 
 type clientService struct {
 	clientRepository repositories.ClientRepository
+	pointService     PointService
 }
 
 func (service *clientService) CreateClient(clientDTO dtos.ClientCreateDTO) (entities.Cliente, utils.ResponseError) {
@@ -126,6 +127,11 @@ func (service *clientService) DeleteClient(clientID string) utils.ResponseError 
 		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 	}
 
+	responseError := service.pointService.DeletePointsByClientID(clientID)
+	if len(responseError.Message) != 0 {
+		return utils.NewResponseError(responseError.Message, responseError.StatusCode)
+	}
+
 	return utils.ResponseError{}
 }
 
@@ -134,8 +140,9 @@ func (service *clientService) FindClients(clientName string, clientType string) 
 }
 
 // NewClientService cria uma nova instancia de ClientService.
-func NewClientService(clientRepository repositories.ClientRepository) ClientService {
+func NewClientService(clientRepository repositories.ClientRepository, pointService PointService) ClientService {
 	return &clientService{
 		clientRepository: clientRepository,
+		pointService:     pointService,
 	}
 }

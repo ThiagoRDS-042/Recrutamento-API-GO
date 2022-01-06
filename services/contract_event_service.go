@@ -19,6 +19,7 @@ type ContractEventService interface {
 
 type contractEventService struct {
 	contractEventRepository repositories.ContractEventRepository
+	contractRepository      repositories.ContractRepository
 }
 
 func (service *contractEventService) CreateContractEvent(contractEventDTO dtos.ContratoEventCreateDTO) (entities.ContratoEvento, utils.ResponseError) {
@@ -28,6 +29,12 @@ func (service *contractEventService) CreateContractEvent(contractEventDTO dtos.C
 	if err != nil {
 		return entities.ContratoEvento{},
 			utils.NewResponseError(fmt.Sprintf("failed to map: %v", err), http.StatusInternalServerError)
+	}
+
+	contractFound := service.contractRepository.FindContractByID(contractEvent.ContratoID)
+	if contractFound == (entities.Contrato{}) {
+		return entities.ContratoEvento{},
+			utils.NewResponseError(utils.ContractNotFound, http.StatusNotFound)
 	}
 
 	contractEvent, err = service.contractEventRepository.CreateContractEvent(contractEvent)
@@ -43,8 +50,9 @@ func (service *contractEventService) FindContractEventsByContractID(contractID s
 }
 
 // NewContractEventService cria uma nova instancia de ContractEventService.
-func NewContractEventService(contractEventRepository repositories.ContractEventRepository) ContractEventService {
+func NewContractEventService(contractEventRepository repositories.ContractEventRepository, contractRepository repositories.ContractRepository) ContractEventService {
 	return &contractEventService{
 		contractEventRepository: contractEventRepository,
+		contractRepository:      contractRepository,
 	}
 }

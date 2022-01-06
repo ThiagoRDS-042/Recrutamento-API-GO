@@ -18,8 +18,7 @@ type PointController interface {
 }
 
 type pointController struct {
-	pointService    services.PointService
-	contractService services.ContractService
+	pointService services.PointService
 }
 
 // CreatePoint godoc
@@ -73,13 +72,6 @@ func (controller *pointController) DeletePoint(ctx *gin.Context) {
 		return
 	}
 
-	err := controller.contractService.DeleteContractByPontoID(pointID)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
 	ctx.JSON(http.StatusNoContent, entities.Cliente{})
 }
 
@@ -120,10 +112,9 @@ func (controller *pointController) FindPoints(ctx *gin.Context) {
 }
 
 // NewPointController cria uma nova isnancia de PointController.
-func NewPointController(pointService services.PointService, contractService services.ContractService) PointController {
+func NewPointController(pointService services.PointService) PointController {
 
 	return &pointController{
-		pointService:    pointService,
-		contractService: contractService,
+		pointService: pointService,
 	}
 }

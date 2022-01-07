@@ -21,7 +21,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 	contractEventRepository := repositories.NewContractEventRepository(db)
 
 	// Services
-	contractEventService := services.NewContractEventService(contractEventRepository)
+	contractEventService := services.NewContractEventService(contractEventRepository, contractRepository)
 	contractService := services.NewContractService(contractRepository, pointRepository, contractEventService)
 	pointService := services.NewPointService(pointRepository, clientRepository, addressRepository, contractService)
 	clientService := services.NewClientService(clientRepository, pointService)

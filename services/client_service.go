@@ -17,7 +17,7 @@ type ClientService interface {
 	UpdateClient(clientDTO dtos.ClientUpdateDTO) (entities.Cliente, utils.ResponseError)
 	FindClientByID(clientID string) entities.Cliente
 	FindClientByName(name string) entities.Cliente
-	DeleteClient(clientID string) utils.ResponseError
+	DeleteClientByID(clientID string) utils.ResponseError
 	FindClients(clientName string, clientType string) []entities.Cliente
 }
 
@@ -115,7 +115,7 @@ func (service *clientService) FindClientByName(name string) entities.Cliente {
 	return service.clientRepository.FindClientByName(name)
 }
 
-func (service *clientService) DeleteClient(clientID string) utils.ResponseError {
+func (service *clientService) DeleteClientByID(clientID string) utils.ResponseError {
 	clientFound := service.clientRepository.FindClientByID(clientID)
 
 	if clientFound == (entities.Cliente{}) {

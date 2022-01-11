@@ -16,7 +16,7 @@ type PointService interface {
 	CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, utils.ResponseError)
 	FindPointByID(pointID string) entities.Ponto
 	FindPointByClientIDAndAddressID(clientID string, addressID string) entities.Ponto
-	DeletePoint(pointID string) utils.ResponseError
+	DeletePointByID(pointID string) utils.ResponseError
 	DeletePointsByClientID(clientID string) utils.ResponseError
 	DeletePointsByAddressID(addressID string) utils.ResponseError
 	FindPoints(clientID string, addressID string) []entities.Ponto
@@ -83,7 +83,7 @@ func (service *pointService) FindPointByClientIDAndAddressID(clientID string, ad
 	return service.pointRepository.FindPointByClientIDAndAddressID(clientID, addressID)
 }
 
-func (service *pointService) DeletePoint(pointID string) utils.ResponseError {
+func (service *pointService) DeletePointByID(pointID string) utils.ResponseError {
 	pointFound := service.pointRepository.FindPointByID(pointID)
 
 	if pointFound == (entities.Ponto{}) {
@@ -95,9 +95,9 @@ func (service *pointService) DeletePoint(pointID string) utils.ResponseError {
 		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 	}
 
-	err = service.contractService.DeleteContractByPontoID(pointID)
-	if err != nil {
-		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+	responseError := service.contractService.DeleteContractByPontoID(pointID)
+	if responseError != (utils.ResponseError{}) {
+		return responseError
 	}
 
 	return utils.ResponseError{}
@@ -107,7 +107,7 @@ func (service *pointService) DeletePointsByClientID(clientID string) utils.Respo
 	points := service.pointRepository.FindPointsByClientID(clientID)
 
 	if len(points) == 0 {
-		return utils.NewResponseError(utils.PointNotFound, http.StatusNotFound)
+		return utils.ResponseError{}
 	}
 
 	var err error
@@ -118,9 +118,9 @@ func (service *pointService) DeletePointsByClientID(clientID string) utils.Respo
 			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 
-		err = service.contractService.DeleteContractByPontoID(point.ID)
-		if err != nil {
-			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+		responseError := service.contractService.DeleteContractByPontoID(point.ID)
+		if responseError != (utils.ResponseError{}) {
+			return responseError
 		}
 	}
 
@@ -142,9 +142,9 @@ func (service *pointService) DeletePointsByAddressID(addressID string) utils.Res
 			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
 		}
 
-		err = service.contractService.DeleteContractByPontoID(point.ID)
-		if err != nil {
-			return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+		responseError := service.contractService.DeleteContractByPontoID(point.ID)
+		if responseError != (utils.ResponseError{}) {
+			return responseError
 		}
 	}
 

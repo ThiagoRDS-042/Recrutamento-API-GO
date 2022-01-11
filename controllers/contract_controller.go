@@ -39,16 +39,16 @@ func (controller *contractController) CreateContract(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&contractDTO); err != nil {
 		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	contractDTO.Estado = entities.VIGOR
 
 	contract, responseError := controller.contractService.CreateContract(contractDTO)
-	if len(responseError.Message) != 0 {
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&contractDTO); err != nil {
 		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -82,9 +82,9 @@ func (controller *contractController) UpdateContract(ctx *gin.Context) {
 	contractDTO.ID = contractID
 
 	contract, responseError := controller.contractService.UpdateContract(contractDTO)
-	if len(responseError.Message) != 0 {
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -108,7 +108,7 @@ func (controller *contractController) FindContractByID(ctx *gin.Context) {
 
 	if contractFound == (entities.Contrato{}) {
 		response := utils.NewResponse(utils.ContractNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 
@@ -131,18 +131,10 @@ func (controller *contractController) FindContractByID(ctx *gin.Context) {
 func (controller *contractController) DeleteContract(ctx *gin.Context) {
 	contractID := ctx.Param("id")
 
-	contractFound := controller.contractService.FindContractByID(contractID)
-
-	if contractFound == (entities.Contrato{}) {
-		response := utils.NewResponse(utils.ClientNotFound)
-		ctx.JSON(http.StatusNotFound, response)
-		return
-	}
-
-	err := controller.contractService.DeleteContract(contractFound)
-	if err != nil {
-		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+	responseError := controller.contractService.DeleteContractByID(contractID)
+	if responseError != (utils.ResponseError{}) {
+		response := utils.NewResponse(responseError.Message)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -168,7 +160,7 @@ func (controller *contractController) FindContracts(ctx *gin.Context) {
 
 	if len(contracts) == 0 {
 		response := utils.NewResponse(utils.ContractNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 

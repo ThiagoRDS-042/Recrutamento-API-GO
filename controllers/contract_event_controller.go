@@ -32,10 +32,9 @@ func (controller *contractEventController) FindContractEventsByContractID(ctx *g
 	contractID := ctx.Param("id")
 
 	contractEvents := controller.contractEventService.FindContractEventsByContractID(contractID)
-
 	if len(contractEvents) == 0 {
 		response := utils.NewResponse(utils.HistoryOfContractNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 

@@ -1,10 +1,13 @@
 package repositories
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
+	"github.com/gofrs/uuid"
 )
 
 // DBAddress banco de dados fake de endereços para os testes
@@ -15,6 +18,9 @@ type addressConnectionFake struct {
 }
 
 func (db *addressConnectionFake) CreateAddress(address entities.Endereco) (entities.Endereco, error) {
+	addressID, _ := uuid.NewV4()
+
+	address.ID = addressID.String()
 	address.DataCriacao = time.Now()
 	address.DataAtualizacao = time.Now()
 
@@ -25,9 +31,10 @@ func (db *addressConnectionFake) CreateAddress(address entities.Endereco) (entit
 
 func (db *addressConnectionFake) UpdateAddress(address entities.Endereco) (entities.Endereco, error) {
 	address.DataAtualizacao = time.Now()
+	address.DataRemocao.Valid = false
 
-	for i, v := range *db.connection {
-		if v.ID == address.ID {
+	for i, addressValue := range *db.connection {
+		if addressValue.ID == address.ID {
 			(*db.connection)[i] = address
 		}
 	}
@@ -38,9 +45,9 @@ func (db *addressConnectionFake) UpdateAddress(address entities.Endereco) (entit
 func (db *addressConnectionFake) FindAddressByID(addressID string) entities.Endereco {
 	address := entities.Endereco{}
 
-	for _, v := range *db.connection {
-		if v.ID == addressID && !v.DataRemocao.Valid {
-			address = v
+	for _, addressValue := range *db.connection {
+		if addressValue.ID == addressID && !addressValue.DataRemocao.Valid {
+			address = addressValue
 		}
 	}
 
@@ -50,9 +57,9 @@ func (db *addressConnectionFake) FindAddressByID(addressID string) entities.Ende
 func (db *addressConnectionFake) FindAddressByFields(street string, neighborhood string, number int) entities.Endereco {
 	address := entities.Endereco{}
 
-	for _, v := range *db.connection {
-		if v.Logradouro == street && v.Bairro == neighborhood && v.Numero == number {
-			address = v
+	for _, addressValue := range *db.connection {
+		if addressValue.Logradouro == street && addressValue.Bairro == neighborhood && addressValue.Numero == number {
+			address = addressValue
 		}
 	}
 
@@ -60,8 +67,8 @@ func (db *addressConnectionFake) FindAddressByFields(street string, neighborhood
 }
 
 func (db *addressConnectionFake) DeleteAddress(address entities.Endereco) error {
-	for i, v := range *db.connection {
-		if v.ID == address.ID {
+	for i, addressValue := range *db.connection {
+		if addressValue.ID == address.ID {
 			(*db.connection)[i].DataRemocao.Scan(time.Now())
 		}
 	}
@@ -70,7 +77,76 @@ func (db *addressConnectionFake) DeleteAddress(address entities.Endereco) error 
 }
 
 func (db *addressConnectionFake) FindAddresses(street string, neighborhood string, number string) []entities.Endereco {
-	return *db.connection
+	address := []entities.Endereco{}
+
+	if street != "" && neighborhood != "" && number != "" {
+		numberConverted, _ := strconv.Atoi(number)
+
+		for _, addressValue := range *db.connection {
+			if strings.Contains(addressValue.Logradouro, street) && strings.Contains(addressValue.Bairro, neighborhood) &&
+				addressValue.Numero == numberConverted && !addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+
+	} else if street != "" && neighborhood != "" {
+
+		for _, addressValue := range *db.connection {
+			if strings.Contains(addressValue.Logradouro, street) && strings.Contains(addressValue.Bairro, neighborhood) &&
+				!addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+
+	} else if street != "" && number != "" {
+		numberConverted, _ := strconv.Atoi(number)
+
+		for _, addressValue := range *db.connection {
+			if strings.Contains(addressValue.Logradouro, street) && addressValue.Numero == numberConverted &&
+				!addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+
+	} else if neighborhood != "" && number != "" {
+		numberConverted, _ := strconv.Atoi(number)
+
+		for _, addressValue := range *db.connection {
+			if strings.Contains(addressValue.Bairro, neighborhood) && addressValue.Numero == numberConverted &&
+				!addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+
+	} else if street != "" {
+		for _, addressValue := range *db.connection {
+			if strings.Contains(addressValue.Logradouro, street) && !addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+	} else if neighborhood != "" {
+		for _, addressValue := range *db.connection {
+			if strings.Contains(addressValue.Bairro, neighborhood) && !addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+	} else if number != "" {
+		numberConverted, _ := strconv.Atoi(number)
+
+		for _, addressValue := range *db.connection {
+			if addressValue.Numero == numberConverted && !addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+	} else {
+		for _, addressValue := range *db.connection {
+			if !addressValue.DataRemocao.Valid {
+				address = append(address, addressValue)
+			}
+		}
+	}
+
+	return address
 }
 
 // NewAddressRepositoryFake cria uma nova instancia de AddressRepository para os testes.

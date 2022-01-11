@@ -5,7 +5,7 @@ import (
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
+	services "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/client_service"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -152,7 +152,7 @@ func (controller *clientController) FindClients(ctx *gin.Context) {
 	clientType := ctx.Query("tipo")
 	clientName := ctx.Query("nome")
 
-	clients := controller.clientService.FindClients(clientName, clientType)
+	clients := controller.clientService.FindClients(clientName, entities.ClientType(clientType))
 
 	if len(clients) == 0 {
 		response := utils.NewResponse(utils.ClientNotFound)

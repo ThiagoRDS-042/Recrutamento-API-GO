@@ -7,6 +7,7 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
+	services "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/contract_service"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )
@@ -26,7 +27,7 @@ type pointService struct {
 	pointRepository   repositories.PointRepository
 	clientRepository  repositories.ClientRepository
 	addressReporitory repositories.AddressRepository
-	contractService   ContractService
+	contractService   services.ContractService
 }
 
 func (service *pointService) CreatePoint(pointDTO dtos.PointCreateDTO) (entities.Ponto, utils.ResponseError) {
@@ -156,7 +157,7 @@ func (service *pointService) FindPoints(clientID string, addressID string) []ent
 }
 
 // NewPointService cria uma nova instancia de PointService.
-func NewPointService(pointRepository repositories.PointRepository, clientRepository repositories.ClientRepository, addressReporitory repositories.AddressRepository, contractService ContractService) PointService {
+func NewPointService(pointRepository repositories.PointRepository, clientRepository repositories.ClientRepository, addressReporitory repositories.AddressRepository, contractService services.ContractService) PointService {
 	return &pointService{
 		pointRepository:   pointRepository,
 		contractService:   contractService,

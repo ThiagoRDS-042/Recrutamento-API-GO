@@ -4,7 +4,11 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/controllers"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
+	addressService "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/address_service"
+	clientService "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/client_service"
+	contractEventService "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/contract_event_service"
+	contractService "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/contract_service"
+	pointService "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/point_service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,11 +25,11 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 	contractEventRepository := repositories.NewContractEventRepository(db)
 
 	// Services
-	contractEventService := services.NewContractEventService(contractEventRepository, contractRepository)
-	contractService := services.NewContractService(contractRepository, pointRepository, contractEventService)
-	pointService := services.NewPointService(pointRepository, clientRepository, addressRepository, contractService)
-	clientService := services.NewClientService(clientRepository, pointService)
-	addressService := services.NewAddressService(addressRepository, pointService)
+	contractEventService := contractEventService.NewContractEventService(contractEventRepository, contractRepository)
+	contractService := contractService.NewContractService(contractRepository, pointRepository, contractEventService)
+	pointService := pointService.NewPointService(pointRepository, clientRepository, addressRepository, contractService)
+	clientService := clientService.NewClientService(clientRepository, pointService)
+	addressService := addressService.NewAddressService(addressRepository, pointService)
 
 	// Controllers
 	clientController := controllers.NewClientController(clientService)

@@ -5,7 +5,7 @@ import (
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
+	services "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/point_service"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/gin-gonic/gin"
 )

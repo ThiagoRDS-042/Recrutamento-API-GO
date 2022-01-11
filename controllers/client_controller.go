@@ -39,14 +39,14 @@ func (controller *clientController) CreateClient(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&clientDTO); err != nil {
 		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	client, responseError := controller.clientService.CreateClient(clientDTO)
-	if len(responseError.Message) != 0 {
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -71,7 +71,7 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&clientDTO); err != nil {
 		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -80,9 +80,9 @@ func (controller *clientController) UpdateClient(ctx *gin.Context) {
 	clientDTO.ID = clientID
 
 	client, responseError := controller.clientService.UpdateClient(clientDTO)
-	if len(responseError.Message) != 0 {
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (controller *clientController) FindClientByID(ctx *gin.Context) {
 
 	if clientFound == (entities.Cliente{}) {
 		response := utils.NewResponse(utils.ClientNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 
@@ -127,10 +127,10 @@ func (controller *clientController) FindClientByID(ctx *gin.Context) {
 func (controller *clientController) DeleteClient(ctx *gin.Context) {
 	clientID := ctx.Param("id")
 
-	responseError := controller.clientService.DeleteClient(clientID)
-	if len(responseError.Message) != 0 {
+	responseError := controller.clientService.DeleteClientByID(clientID)
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -156,7 +156,7 @@ func (controller *clientController) FindClients(ctx *gin.Context) {
 
 	if len(clients) == 0 {
 		response := utils.NewResponse(utils.ClientNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 

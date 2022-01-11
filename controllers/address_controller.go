@@ -39,15 +39,14 @@ func (controller *addressController) CreateAddress(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&addressDTO); err != nil {
 		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	address, responseError := controller.addressService.CreateAddress(addressDTO)
-
-	if len(responseError.Message) != 0 {
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -72,7 +71,7 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&addressDTO); err != nil {
 		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -81,9 +80,9 @@ func (controller *addressController) UpdateAddress(ctx *gin.Context) {
 	addressDTO.ID = addressID
 
 	address, responseError := controller.addressService.UpdateAddress(addressDTO)
-	if len(responseError.Message) != 0 {
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -107,7 +106,7 @@ func (controller *addressController) FindAddressByID(ctx *gin.Context) {
 
 	if addressFound == (entities.Endereco{}) {
 		response := utils.NewResponse(utils.AddressNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 
@@ -128,10 +127,10 @@ func (controller *addressController) FindAddressByID(ctx *gin.Context) {
 func (controller *addressController) DeleteAddress(ctx *gin.Context) {
 	addressID := ctx.Param("id")
 
-	responseError := controller.addressService.DeleteAddress(addressID)
-	if len(responseError.Message) != 0 {
+	responseError := controller.addressService.DeleteAddressByID(addressID)
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -160,7 +159,7 @@ func (controller *addressController) FindAddress(ctx *gin.Context) {
 
 	if len(addresses) == 0 {
 		response := utils.NewResponse(utils.AddressNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 

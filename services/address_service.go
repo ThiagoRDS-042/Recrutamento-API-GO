@@ -17,7 +17,7 @@ type AddressService interface {
 	UpdateAddress(addressDTO dtos.AddressUpdateDTO) (entities.Endereco, utils.ResponseError)
 	FindAddressByID(addressID string) entities.Endereco
 	FindAddressByFields(street string, neighborhood string, number int) entities.Endereco
-	DeleteAddress(addressID string) utils.ResponseError
+	DeleteAddressByID(addressID string) utils.ResponseError
 	FindAddresses(street string, neighborhood string, number string) []entities.Endereco
 }
 
@@ -122,7 +122,7 @@ func (service *addressService) FindAddressByFields(street string, neighborhood s
 	return service.addressRepository.FindAddressByFields(street, neighborhood, number)
 }
 
-func (service *addressService) DeleteAddress(addressID string) utils.ResponseError {
+func (service *addressService) DeleteAddressByID(addressID string) utils.ResponseError {
 
 	addressFound := service.addressRepository.FindAddressByID(addressID)
 

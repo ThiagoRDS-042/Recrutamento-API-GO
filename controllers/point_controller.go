@@ -37,14 +37,14 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&pointDTO); err != nil {
 		response := utils.NewResponse(err.Error())
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	point, responseError := controller.pointService.CreatePoint(pointDTO)
-	if len(responseError.Message) != 0 {
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -65,10 +65,10 @@ func (controller *pointController) CreatePoint(ctx *gin.Context) {
 func (controller *pointController) DeletePoint(ctx *gin.Context) {
 	pointID := ctx.Param("id")
 
-	responseError := controller.pointService.DeletePoint(pointID)
-	if len(responseError.Message) != 0 {
+	responseError := controller.pointService.DeletePointByID(pointID)
+	if responseError != (utils.ResponseError{}) {
 		response := utils.NewResponse(responseError.Message)
-		ctx.JSON(responseError.StatusCode, response)
+		ctx.AbortWithStatusJSON(responseError.StatusCode, response)
 		return
 	}
 
@@ -94,7 +94,7 @@ func (controller *pointController) FindPoints(ctx *gin.Context) {
 
 	if len(points) == 0 {
 		response := utils.NewResponse(utils.PointNotFound)
-		ctx.JSON(http.StatusNotFound, response)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, response)
 		return
 	}
 

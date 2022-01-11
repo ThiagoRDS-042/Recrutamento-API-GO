@@ -17,8 +17,8 @@ type ContractService interface {
 	UpdateContract(contractDTO dtos.ContractUpdateDTO) (entities.Contrato, utils.ResponseError)
 	FindContractByID(contractID string) entities.Contrato
 	FindContractByPontoID(pontoID string) entities.Contrato
-	DeleteContract(contract entities.Contrato) error
-	DeleteContractByPontoID(pontoID string) error
+	DeleteContractByID(contractID string) utils.ResponseError
+	DeleteContractByPontoID(pontoID string) utils.ResponseError
 	FindContracts(clientID string, addressID string) []entities.Contrato
 }
 
@@ -137,17 +137,33 @@ func (service *contractService) FindContractByPontoID(pontoID string) entities.C
 	return service.contractRepository.FindContractByPontoID(pontoID)
 }
 
-func (service *contractService) DeleteContract(contract entities.Contrato) error {
-	return service.contractRepository.DeleteContract(contract)
-}
+func (service *contractService) DeleteContractByID(contractID string) utils.ResponseError {
+	contractFound := service.contractRepository.FindContractByID(contractID)
 
-func (service *contractService) DeleteContractByPontoID(pontoID string) error {
-	contract := service.contractRepository.FindContractByPontoID(pontoID)
-	if contract == (entities.Contrato{}) {
-		return nil
+	if contractFound == (entities.Contrato{}) {
+		return utils.NewResponseError(utils.ContractNotFound, http.StatusNotFound)
 	}
 
-	return service.contractRepository.DeleteContract(contract)
+	err := service.contractRepository.DeleteContract(contractFound)
+	if err != nil {
+		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+	}
+
+	return utils.ResponseError{}
+}
+
+func (service *contractService) DeleteContractByPontoID(pontoID string) utils.ResponseError {
+	contract := service.contractRepository.FindContractByPontoID(pontoID)
+	if contract == (entities.Contrato{}) {
+		return utils.ResponseError{}
+	}
+
+	err := service.contractRepository.DeleteContract(contract)
+	if err != nil {
+		return utils.NewResponseError(err.Error(), http.StatusInternalServerError)
+	}
+
+	return utils.ResponseError{}
 }
 
 func (service *contractService) FindContracts(clientID string, addressID string) []entities.Contrato {

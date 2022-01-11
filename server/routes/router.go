@@ -3,7 +3,7 @@ package routes
 import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/controllers"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/database"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories"
+	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/services"
 	"github.com/gin-gonic/gin"
 )

@@ -6,7 +6,7 @@ import (
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
-	"github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories"
+	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )

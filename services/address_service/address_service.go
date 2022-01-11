@@ -7,6 +7,7 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
+	services "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/point_service"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )
@@ -23,7 +24,7 @@ type AddressService interface {
 
 type addressService struct {
 	addressRepository repositories.AddressRepository
-	pointService      PointService
+	pointService      services.PointService
 }
 
 func (service *addressService) CreateAddress(addressDTO dtos.AddressCreateDTO) (entities.Endereco, utils.ResponseError) {
@@ -148,7 +149,7 @@ func (service *addressService) FindAddresses(street string, neighborhood string,
 }
 
 // NewAddressService cria uma nova instancia de AddressService.
-func NewAddressService(addressRepository repositories.AddressRepository, pointService PointService) AddressService {
+func NewAddressService(addressRepository repositories.AddressRepository, pointService services.PointService) AddressService {
 	return &addressService{
 		addressRepository: addressRepository,
 		pointService:      pointService,

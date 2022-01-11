@@ -5,6 +5,7 @@ import (
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
+	"github.com/gofrs/uuid"
 )
 
 // DBContractEvent banco de dados fake de eventos de contratos para os testes
@@ -15,6 +16,9 @@ type contractEventConnectionFake struct {
 }
 
 func (db *contractEventConnectionFake) CreateContractEvent(contractEvent entities.ContratoEvento) (entities.ContratoEvento, error) {
+	contractEventID, _ := uuid.NewV4()
+
+	contractEvent.ID = contractEventID.String()
 	contractEvent.DataCriacao = time.Now()
 	contractEvent.DataAtualizacao = time.Now()
 
@@ -27,9 +31,9 @@ func (db *contractEventConnectionFake) FindContractEventsByContractID(contractID
 	contractsEvent := []entities.ContratoEvento{}
 
 	if contractID != "" {
-		for _, v := range *db.connection {
-			if v.ContratoID == contractID {
-				contractsEvent = append(contractsEvent, v)
+		for _, contractsEventValue := range *db.connection {
+			if contractsEventValue.ContratoID == contractID {
+				contractsEvent = append(contractsEvent, contractsEventValue)
 			}
 		}
 	} else {

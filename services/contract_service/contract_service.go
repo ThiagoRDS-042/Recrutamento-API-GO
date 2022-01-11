@@ -7,6 +7,7 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
+	services "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/contract_event_service"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )
@@ -25,7 +26,7 @@ type ContractService interface {
 type contractService struct {
 	contractRepository   repositories.ContractRepository
 	pointRepository      repositories.PointRepository
-	contractEventService ContractEventService
+	contractEventService services.ContractEventService
 }
 
 func (service *contractService) CreateContract(contractDTO dtos.ContractCreateDTO) (entities.Contrato, utils.ResponseError) {
@@ -171,7 +172,7 @@ func (service *contractService) FindContracts(clientID string, addressID string)
 }
 
 // NewContractService cria uma nova instancia de ContractService.
-func NewContractService(contractRepository repositories.ContractRepository, pointRepository repositories.PointRepository, contractEventService ContractEventService) ContractService {
+func NewContractService(contractRepository repositories.ContractRepository, pointRepository repositories.PointRepository, contractEventService services.ContractEventService) ContractService {
 	return &contractService{
 		contractRepository:   contractRepository,
 		pointRepository:      pointRepository,

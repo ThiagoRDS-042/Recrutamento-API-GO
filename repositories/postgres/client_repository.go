@@ -15,7 +15,7 @@ type ClientRepository interface {
 	FindClientByID(clientID string) entities.Cliente
 	FindClientByName(name string) entities.Cliente
 	DeleteClient(client entities.Cliente) error
-	FindClients(clientName string, clientType string) []entities.Cliente
+	FindClients(clientName string, clientType entities.ClientType) []entities.Cliente
 }
 
 type clientConnection struct {
@@ -72,7 +72,7 @@ func (db *clientConnection) DeleteClient(client entities.Cliente) error {
 	return nil
 }
 
-func (db *clientConnection) FindClients(clientName string, clientType string) []entities.Cliente {
+func (db *clientConnection) FindClients(clientName string, clientType entities.ClientType) []entities.Cliente {
 	clients := []entities.Cliente{}
 
 	var sqlQuery string
@@ -84,7 +84,7 @@ func (db *clientConnection) FindClients(clientName string, clientType string) []
 		sqlQuery += "NOT nome IS NULL "
 	}
 
-	if clientType != "" {
+	if clientType != entities.ClientType("") {
 		sqlQuery += fmt.Sprintf("AND tipo = '%v'", clientType)
 	} else {
 		sqlQuery += "AND NOT tipo IS NULL"

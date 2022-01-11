@@ -7,6 +7,7 @@ import (
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities/dtos"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
+	services "github.com/ThiagoRDS-042/Recrutamento-API-GO/services/point_service"
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/utils"
 	"github.com/mashingan/smapping"
 )
@@ -18,12 +19,12 @@ type ClientService interface {
 	FindClientByID(clientID string) entities.Cliente
 	FindClientByName(name string) entities.Cliente
 	DeleteClientByID(clientID string) utils.ResponseError
-	FindClients(clientName string, clientType string) []entities.Cliente
+	FindClients(clientName string, clientType entities.ClientType) []entities.Cliente
 }
 
 type clientService struct {
 	clientRepository repositories.ClientRepository
-	pointService     PointService
+	pointService     services.PointService
 }
 
 func (service *clientService) CreateClient(clientDTO dtos.ClientCreateDTO) (entities.Cliente, utils.ResponseError) {
@@ -135,12 +136,12 @@ func (service *clientService) DeleteClientByID(clientID string) utils.ResponseEr
 	return utils.ResponseError{}
 }
 
-func (service *clientService) FindClients(clientName string, clientType string) []entities.Cliente {
+func (service *clientService) FindClients(clientName string, clientType entities.ClientType) []entities.Cliente {
 	return service.clientRepository.FindClients(clientName, clientType)
 }
 
 // NewClientService cria uma nova instancia de ClientService.
-func NewClientService(clientRepository repositories.ClientRepository, pointService PointService) ClientService {
+func NewClientService(clientRepository repositories.ClientRepository, pointService services.PointService) ClientService {
 	return &clientService{
 		clientRepository: clientRepository,
 		pointService:     pointService,

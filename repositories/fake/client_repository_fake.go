@@ -1,10 +1,12 @@
 package repositories
 
 import (
+	"strings"
 	"time"
 
 	"github.com/ThiagoRDS-042/Recrutamento-API-GO/entities"
 	repositories "github.com/ThiagoRDS-042/Recrutamento-API-GO/repositories/postgres"
+	"github.com/gofrs/uuid"
 )
 
 // DBClient banco de dados fake de clientes para os testes
@@ -15,6 +17,9 @@ type clientConnectionFake struct {
 }
 
 func (db *clientConnectionFake) CreateClient(client entities.Cliente) (entities.Cliente, error) {
+	clientID, _ := uuid.NewV4()
+
+	client.ID = clientID.String()
 	client.DataCriacao = time.Now()
 	client.DataAtualizacao = time.Now()
 
@@ -25,9 +30,10 @@ func (db *clientConnectionFake) CreateClient(client entities.Cliente) (entities.
 
 func (db *clientConnectionFake) UpdateClient(client entities.Cliente) (entities.Cliente, error) {
 	client.DataAtualizacao = time.Now()
+	client.DataRemocao.Valid = false
 
-	for i, v := range *db.connection {
-		if v.ID == client.ID {
+	for i, clientValue := range *db.connection {
+		if clientValue.ID == client.ID {
 			(*db.connection)[i] = client
 		}
 	}
@@ -38,9 +44,9 @@ func (db *clientConnectionFake) UpdateClient(client entities.Cliente) (entities.
 func (db *clientConnectionFake) FindClientByID(clientID string) entities.Cliente {
 	client := entities.Cliente{}
 
-	for _, v := range *db.connection {
-		if v.ID == clientID && !v.DataRemocao.Valid {
-			client = v
+	for _, clientValue := range *db.connection {
+		if clientValue.ID == clientID && !clientValue.DataRemocao.Valid {
+			client = clientValue
 		}
 	}
 
@@ -50,9 +56,9 @@ func (db *clientConnectionFake) FindClientByID(clientID string) entities.Cliente
 func (db *clientConnectionFake) FindClientByName(name string) entities.Cliente {
 	client := entities.Cliente{}
 
-	for _, v := range *db.connection {
-		if v.Nome == name {
-			client = v
+	for _, clientValue := range *db.connection {
+		if clientValue.Nome == name {
+			client = clientValue
 		}
 	}
 
@@ -60,8 +66,8 @@ func (db *clientConnectionFake) FindClientByName(name string) entities.Cliente {
 }
 
 func (db *clientConnectionFake) DeleteClient(client entities.Cliente) error {
-	for i, v := range *db.connection {
-		if v.ID == client.ID {
+	for i, clientValue := range *db.connection {
+		if clientValue.ID == client.ID {
 			(*db.connection)[i].DataRemocao.Scan(time.Now())
 		}
 	}
@@ -69,8 +75,37 @@ func (db *clientConnectionFake) DeleteClient(client entities.Cliente) error {
 	return nil
 }
 
-func (db *clientConnectionFake) FindClients(clientName string, clientType string) []entities.Cliente {
-	return *db.connection
+func (db *clientConnectionFake) FindClients(clientName string, clientType entities.ClientType) []entities.Cliente {
+	clients := []entities.Cliente{}
+
+	if clientName != "" && clientType != entities.ClientType("") {
+		for _, clientValue := range *db.connection {
+			if strings.Contains(clientValue.Nome, clientName) && clientValue.Tipo == clientType &&
+				!clientValue.DataRemocao.Valid {
+				clients = append(clients, clientValue)
+			}
+		}
+	} else if clientName != "" {
+		for _, clientValue := range *db.connection {
+			if strings.Contains(clientValue.Nome, clientName) && !clientValue.DataRemocao.Valid {
+				clients = append(clients, clientValue)
+			}
+		}
+	} else if clientType != "" {
+		for _, clientValue := range *db.connection {
+			if clientValue.Tipo == clientType && !clientValue.DataRemocao.Valid {
+				clients = append(clients, clientValue)
+			}
+		}
+	} else {
+		for _, clientValue := range *db.connection {
+			if !clientValue.DataRemocao.Valid {
+				clients = append(clients, clientValue)
+			}
+		}
+	}
+
+	return clients
 }
 
 // NewClientRepositoryFake cria uma nova instancia de ClientRepository para os testes.

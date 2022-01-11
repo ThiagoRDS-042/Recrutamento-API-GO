@@ -63,8 +63,8 @@ func (db *addressConnection) FindAddressByFields(street string, neighborhood str
 	return address
 }
 
-func (db *addressConnection) DeleteAddress(street entities.Endereco) error {
-	err := db.connection.Delete(&street).Error
+func (db *addressConnection) DeleteAddress(address entities.Endereco) error {
+	err := db.connection.Delete(&address).Error
 	if err != nil {
 		return err
 	}

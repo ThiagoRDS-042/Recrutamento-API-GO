@@ -117,16 +117,43 @@ func TestUpdateClient(t *testing.T) {
 	require.False(t, clientUpdated.DataRemocao.Valid)
 }
 
-// TestUpdateClientWithNameExistent testa se não é possivel atualizar um cliente com um nome ja existente.
-func TestUpdateClientWithNameExistent(t *testing.T) {
+// TestUpdateClientWithoutName testa se é possivel atualizar um cliente sem passar o nome.
+func TestUpdateClientWithoutName(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
 		Nome: "Test 5.0",
 		Tipo: entities.FISICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
 
-	clientDTO2 := dtos.ClientCreateDTO{
+	newType := entities.JURIDICO
+	clientUpdateDTO := dtos.ClientUpdateDTO{
+		Base: dtos.Base{
+			ID: client.ID,
+		},
+		Nome: "",
+		Tipo: newType,
+	}
+	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
+
+	require.Empty(t, responseError)
+
+	require.NotEmpty(t, clientUpdated)
+	require.Equal(t, client.ID, clientUpdated.ID)
+	require.Equal(t, client.Nome, clientUpdated.Nome)
+	require.Equal(t, newType, clientUpdated.Tipo)
+	require.False(t, clientUpdated.DataRemocao.Valid)
+}
+
+// TestUpdateClientWithNameExistent testa se não é possivel atualizar um cliente com um nome ja existente.
+func TestUpdateClientWithNameExistent(t *testing.T) {
+	clientDTO := dtos.ClientCreateDTO{
 		Nome: "Test 6.0",
+		Tipo: entities.FISICO,
+	}
+	client, _ := clientServiceTest.CreateClient(clientDTO)
+
+	clientDTO2 := dtos.ClientCreateDTO{
+		Nome: "Test 7.0",
 		Tipo: entities.JURIDICO,
 	}
 	client2, _ := clientServiceTest.CreateClient(clientDTO2)
@@ -147,10 +174,85 @@ func TestUpdateClientWithNameExistent(t *testing.T) {
 	require.Empty(t, clientUpdated)
 }
 
+// TestUpdateClientWithInvalidName testa se não é possivel atualizar um cliente com um nome invalido.
+func TestUpdateClientWithInvalidName(t *testing.T) {
+	clientDTO := dtos.ClientCreateDTO{
+		Nome: "Test 8.0",
+		Tipo: entities.FISICO,
+	}
+	client, _ := clientServiceTest.CreateClient(clientDTO)
+
+	clientUpdateDTO := dtos.ClientUpdateDTO{
+		Base: dtos.Base{
+			ID: client.ID,
+		},
+		Nome: "Te",
+		Tipo: client.Tipo,
+	}
+	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
+
+	require.NotEmpty(t, responseError)
+	require.Equal(t, "nome: "+utils.InvalidNumberOfCaracter, responseError.Message)
+	require.Equal(t, http.StatusBadRequest, responseError.StatusCode)
+
+	require.Empty(t, clientUpdated)
+}
+
+// TestUpdateClientWithoutType testa se é possivel atualizar um cliente sem passar o tipo.
+func TestUpdateClientWithoutType(t *testing.T) {
+	clientDTO := dtos.ClientCreateDTO{
+		Nome: "Test 9.0",
+		Tipo: entities.FISICO,
+	}
+	client, _ := clientServiceTest.CreateClient(clientDTO)
+
+	newName := "Test 9.1"
+	clientUpdateDTO := dtos.ClientUpdateDTO{
+		Base: dtos.Base{
+			ID: client.ID,
+		},
+		Nome: newName,
+		Tipo: "",
+	}
+	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
+
+	require.Empty(t, responseError)
+
+	require.NotEmpty(t, clientUpdated)
+	require.Equal(t, client.ID, clientUpdated.ID)
+	require.Equal(t, newName, clientUpdated.Nome)
+	require.Equal(t, client.Tipo, clientUpdated.Tipo)
+	require.False(t, clientUpdated.DataRemocao.Valid)
+}
+
+// TestUpdateClientWithInvalidType testa se não é possivel atualizar um cliente com um tipo invalido.
+func TestUpdateClientWithInvalidType(t *testing.T) {
+	clientDTO := dtos.ClientCreateDTO{
+		Nome: "Test 10.0",
+		Tipo: entities.FISICO,
+	}
+	client, _ := clientServiceTest.CreateClient(clientDTO)
+
+	clientUpdateDTO := dtos.ClientUpdateDTO{
+		Base: dtos.Base{
+			ID: client.ID,
+		},
+		Nome: client.Nome,
+		Tipo: "newType",
+	}
+	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
+
+	require.NotEmpty(t, responseError)
+	require.Equal(t, "tipo: "+utils.InvalidClientType, responseError.Message)
+	require.Equal(t, http.StatusBadRequest, responseError.StatusCode)
+
+	require.Empty(t, clientUpdated)
+}
+
 // TestUpdateClientWithInvalidID testa se não é possivel atualizar um cliente com um ID invalido.
 func TestUpdateClientWithInvalidID(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 7.0",
+		Nome: "Test 11.0",
 		Tipo: entities.ESPECIAL,
 	}
 	clientServiceTest.CreateClient(clientDTO)
@@ -159,7 +261,7 @@ func TestUpdateClientWithInvalidID(t *testing.T) {
 		Base: dtos.Base{
 			ID: "",
 		},
-		Nome: "Test 8.0",
+		Nome: "Test 12.0",
 		Tipo: entities.JURIDICO,
 	}
 	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
@@ -174,7 +276,7 @@ func TestUpdateClientWithInvalidID(t *testing.T) {
 // TestFindClientByID testa se é possivel buscar um cliente a partir do ID.
 func TestFindClientByID(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 9.0",
+		Nome: "Test 13.0",
 		Tipo: entities.FISICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -188,7 +290,7 @@ func TestFindClientByID(t *testing.T) {
 // TestFindClientByIDWithInvalidID testa se não é possivel buscar um cliente a partir de um ID invalido.
 func TestFindClientByIDWithInvalidID(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 10.0",
+		Nome: "Test 14.0",
 		Tipo: entities.JURIDICO,
 	}
 	clientServiceTest.CreateClient(clientDTO)
@@ -201,7 +303,7 @@ func TestFindClientByIDWithInvalidID(t *testing.T) {
 // TestFindClientByIDWithDeletedAtValid testa se não é possivel buscar um cliente removido a partir do ID.
 func TestFindClientByIDWithDeletedAtValid(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 11.0",
+		Nome: "Test 15.0",
 		Tipo: entities.JURIDICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -215,7 +317,7 @@ func TestFindClientByIDWithDeletedAtValid(t *testing.T) {
 // TestFindClientByName testa se é possivel buscar um cliente a partir do nome.
 func TestFindClientByName(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 12.0",
+		Nome: "Test 16.0",
 		Tipo: entities.JURIDICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -229,7 +331,7 @@ func TestFindClientByName(t *testing.T) {
 // TestFindClientByNameWithInvalidName testa se não é possivel buscar um cliente a partir de um nome invalido.
 func TestFindClientByNameWithInvalidName(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 13.0",
+		Nome: "Test 16.0",
 		Tipo: entities.ESPECIAL,
 	}
 	clientServiceTest.CreateClient(clientDTO)
@@ -242,7 +344,7 @@ func TestFindClientByNameWithInvalidName(t *testing.T) {
 // TestFindClientByNameWithDeletedAtValid testa se é possivel buscar um cliente removido a partir do nome.
 func TestFindClientByNameWithDeletedAtValid(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 14.0",
+		Nome: "Test 18.0",
 		Tipo: entities.FISICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -259,7 +361,7 @@ func TestFindClientByNameWithDeletedAtValid(t *testing.T) {
 // TestDeleteClientByID testa se é possivel "excluir"(solfdelete) um cliente a partir do ID.
 func TestDeleteClientByID(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 15.0",
+		Nome: "Test 19.0",
 		Tipo: entities.FISICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -272,7 +374,7 @@ func TestDeleteClientByID(t *testing.T) {
 // TestDeleteClientByIDWithInvalidID testa se não é possivel "excluir"(solfdelete) um cliente a partir de um ID invalido.
 func TestDeleteClientByIDWithInvalidID(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 16.0",
+		Nome: "Test 20.0",
 		Tipo: entities.ESPECIAL,
 	}
 	clientServiceTest.CreateClient(clientDTO)
@@ -287,7 +389,7 @@ func TestDeleteClientByIDWithInvalidID(t *testing.T) {
 // TestDeleteClientByIDWithDeletedAtValid testa se não é possivel "excluir"(solfdelete) um cliente removido a partir do ID invalido.
 func TestDeleteClientByIDWithDeletedAtValid(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 17.0",
+		Nome: "Test 21.0",
 		Tipo: entities.FISICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -303,7 +405,7 @@ func TestDeleteClientByIDWithDeletedAtValid(t *testing.T) {
 // TestFindClientsByNameAndType testa se é possivel listar todos os clientes não removidos, a partir do nome e tipo.
 func TestFindClientsByNameAndType(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 18.0",
+		Nome: "Test 22.0",
 		Tipo: entities.FISICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -317,7 +419,7 @@ func TestFindClientsByNameAndType(t *testing.T) {
 // TestFindClientsByName testa se é possivel listar todos os clientes não removidos, a partir do nome.
 func TestFindClientsByName(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 19.0",
+		Nome: "Test 23.0",
 		Tipo: entities.JURIDICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -331,7 +433,7 @@ func TestFindClientsByName(t *testing.T) {
 // TestFindClientsByType testa se é possivel listar todos os clientes não removidos, a partir do tipo.
 func TestFindClientsByType(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 20.0",
+		Nome: "Test 24.0",
 		Tipo: entities.JURIDICO,
 	}
 	client, _ := clientServiceTest.CreateClient(clientDTO)
@@ -345,7 +447,7 @@ func TestFindClientsByType(t *testing.T) {
 // TestFindClients testa se é possivel listar todos os clientes não removidos.
 func TestFindClients(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 21.0",
+		Nome: "Test 25.0",
 		Tipo: entities.ESPECIAL,
 	}
 	clientServiceTest.CreateClient(clientDTO)
@@ -359,7 +461,7 @@ func TestFindClients(t *testing.T) {
 // TestFindClientsWithDeteletAtValid testa se não é possivel listar clientes removidos.
 func TestFindClientsWithDeteletAtValid(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
-		Nome: "Test 22.0",
+		Nome: "Test 26.0",
 		Tipo: entities.ESPECIAL,
 	}
 	clientServiceTest.CreateClient(clientDTO)

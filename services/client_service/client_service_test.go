@@ -130,7 +130,6 @@ func TestUpdateClientWithoutName(t *testing.T) {
 		Base: dtos.Base{
 			ID: client.ID,
 		},
-		Nome: "",
 		Tipo: newType,
 	}
 	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
@@ -212,7 +211,6 @@ func TestUpdateClientWithoutType(t *testing.T) {
 			ID: client.ID,
 		},
 		Nome: newName,
-		Tipo: "",
 	}
 	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
 
@@ -386,7 +384,7 @@ func TestDeleteClientByIDWithInvalidID(t *testing.T) {
 	require.NotEmpty(t, http.StatusNotFound, responseError)
 }
 
-// TestDeleteClientByIDWithDeletedAtValid testa se não é possivel "excluir"(solfdelete) um cliente removido a partir do ID invalido.
+// TestDeleteClientByIDWithDeletedAtValid testa se não é possivel "excluir"(solfdelete) um cliente removido a partir do ID.
 func TestDeleteClientByIDWithDeletedAtValid(t *testing.T) {
 	clientDTO := dtos.ClientCreateDTO{
 		Nome: "Test 21.0",

@@ -132,7 +132,7 @@ func (service *pointService) DeletePointsByAddressID(addressID string) utils.Res
 	points := service.pointRepository.FindPointsByAddressID(addressID)
 
 	if len(points) == 0 {
-		return utils.NewResponseError(utils.PointNotFound, http.StatusNotFound)
+		return utils.ResponseError{}
 	}
 
 	var err error

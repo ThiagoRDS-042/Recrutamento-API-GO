@@ -366,7 +366,10 @@ func TestDeleteClientByID(t *testing.T) {
 
 	responseError := clientServiceTest.DeleteClientByID(client.ID)
 
+	clientFound := clientServiceTest.FindClientByID(client.ID)
+
 	require.Empty(t, responseError)
+	require.Empty(t, clientFound)
 }
 
 // TestDeleteClientByIDWithInvalidID testa se não é possivel "excluir"(solfdelete) um cliente a partir de um ID invalido.

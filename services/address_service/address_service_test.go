@@ -437,7 +437,10 @@ func TestDeleteAddressByID(t *testing.T) {
 
 	responseError := addressServiceTest.DeleteAddressByID(address.ID)
 
+	addressFound := addressServiceTest.FindAddressByID(address.ID)
+
 	require.Empty(t, responseError)
+	require.Empty(t, addressFound)
 }
 
 // TestDeleteAddressByIDWithInvalidID testa se não é possivel "excluir"(solfdelete) um endereço a partir de um ID invalido.

@@ -99,51 +99,88 @@ func (db *contractConnectionFake) FindContracts(clientID string, addressID strin
 
 	if clientID != "" && addressID != "" {
 		for _, contractValue := range *db.connection {
-			if contractValue.Ponto.ClienteID == clientID && contractValue.Ponto.EnderecoID == addressID &&
-				!contractValue.DataRemocao.Valid {
-				contracts = append(contracts, contractValue)
-			}
-		}
-	} else if clientID != "" {
-		for _, contractValue := range *db.connection {
-			if contractValue.Ponto.ClienteID == clientID && !contractValue.DataRemocao.Valid {
-				contracts = append(contracts, contractValue)
-			}
-		}
-	} else if addressID != "" {
-		for _, contractValue := range *db.connection {
-			if contractValue.Ponto.EnderecoID == addressID && !contractValue.DataRemocao.Valid {
-				contracts = append(contracts, contractValue)
-			}
-		}
-	} else {
-		for _, contractValue := range *db.connection {
-			if !contractValue.DataRemocao.Valid {
-				contracts = append(contracts, contractValue)
-			}
-		}
-	}
-
-	if len(contracts) != 0 {
-		for i, contract := range contracts {
 			for _, point := range *db.connectionPoint {
-				if contract.PontoID == point.ID {
+				if contractValue.PontoID == point.ID && !contractValue.DataRemocao.Valid {
 
 					for _, client := range *db.connectionClient {
-						if point.ClienteID == client.ID {
-							contracts[i].Ponto.Cliente = client
+						if client.ID == clientID {
+							contractValue.Ponto.Cliente = client
+							contracts = append(contracts, contractValue)
 						}
 					}
 
 					for _, address := range *db.connectionAddress {
-						if point.EnderecoID == address.ID {
-							contracts[i].Ponto.Endereco = address
+						if address.ID == addressID {
+							contractValue.Ponto.Endereco = address
+							contracts = append(contracts, contractValue)
 						}
 					}
 				}
 			}
 		}
+	} else if clientID != "" {
+		for _, contractValue := range *db.connection {
+			for _, point := range *db.connectionPoint {
+				if contractValue.PontoID == point.ID && !contractValue.DataRemocao.Valid {
 
+					for _, client := range *db.connectionClient {
+						if client.ID == clientID {
+							contractValue.Ponto.Cliente = client
+							contracts = append(contracts, contractValue)
+						}
+					}
+
+					for _, address := range *db.connectionAddress {
+						if address.ID == point.EnderecoID {
+							contractValue.Ponto.Endereco = address
+							contracts = append(contracts, contractValue)
+						}
+					}
+				}
+			}
+		}
+	} else if addressID != "" {
+		for _, contractValue := range *db.connection {
+			for _, point := range *db.connectionPoint {
+				if contractValue.PontoID == point.ID && !contractValue.DataRemocao.Valid {
+
+					for _, client := range *db.connectionClient {
+						if client.ID == point.ClienteID {
+							contractValue.Ponto.Cliente = client
+							contracts = append(contracts, contractValue)
+						}
+					}
+
+					for _, address := range *db.connectionAddress {
+						if address.ID == addressID {
+							contractValue.Ponto.Endereco = address
+							contracts = append(contracts, contractValue)
+						}
+					}
+				}
+			}
+		}
+	} else {
+		for _, contractValue := range *db.connection {
+			for _, point := range *db.connectionPoint {
+				if contractValue.PontoID == point.ID && !contractValue.DataRemocao.Valid {
+
+					for _, client := range *db.connectionClient {
+						if client.ID == point.ClienteID {
+							contractValue.Ponto.Cliente = client
+							contracts = append(contracts, contractValue)
+						}
+					}
+
+					for _, address := range *db.connectionAddress {
+						if address.ID == point.EnderecoID {
+							contractValue.Ponto.Endereco = address
+							contracts = append(contracts, contractValue)
+						}
+					}
+				}
+			}
+		}
 	}
 
 	return contracts

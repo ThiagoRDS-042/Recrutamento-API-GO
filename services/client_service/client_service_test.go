@@ -253,14 +253,14 @@ func TestUpdateClientWithInvalidID(t *testing.T) {
 		Nome: "Test 11.0",
 		Tipo: entities.ESPECIAL,
 	}
-	clientServiceTest.CreateClient(clientDTO)
+	client, _ := clientServiceTest.CreateClient(clientDTO)
 
 	clientUpdateDTO := dtos.ClientUpdateDTO{
 		Base: dtos.Base{
 			ID: "",
 		},
-		Nome: "Test 12.0",
-		Tipo: entities.JURIDICO,
+		Nome: "Test 11.1",
+		Tipo: client.Tipo,
 	}
 	clientUpdated, responseError := clientServiceTest.UpdateClient(clientUpdateDTO)
 

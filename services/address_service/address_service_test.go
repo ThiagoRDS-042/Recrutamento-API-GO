@@ -312,7 +312,7 @@ func TestUpdateAddressWithInvalidID(t *testing.T) {
 		Base: dtos.Base{
 			ID: "",
 		},
-		Logradouro: address.Logradouro,
+		Logradouro: "LogradouroTest 12.1",
 		Bairro:     address.Bairro,
 		Numero:     address.Numero,
 	}
@@ -341,7 +341,7 @@ func TestFindAddressByID(t *testing.T) {
 }
 
 // TestFindAddressByIDWithoutInvalidID testa se não é possivel buscar um endereço a partir de um ID invalido.
-func TestFindAddressByIDWithoutInvalidID(t *testing.T) {
+func TestFindAddressByIDWithInvalidID(t *testing.T) {
 	addressDTO := dtos.AddressCreateDTO{
 		Logradouro: "LogradouroTest 14.0",
 		Bairro:     "BairroTest 14.0",

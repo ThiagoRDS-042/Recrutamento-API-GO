@@ -106,7 +106,7 @@ func (service *contractService) UpdateContract(contractDTO dtos.ContractUpdateDT
 	}
 
 	if !dtos.IsAuthorized(contractFound.Estado, contractDTO.Estado) {
-		return entities.Contrato{}, utils.NewResponseError(utils.Unathorized, http.StatusForbidden)
+		return entities.Contrato{}, utils.NewResponseError(utils.Unathorized, http.StatusUnauthorized)
 	}
 
 	contract.PontoID = contractFound.PontoID

@@ -53,7 +53,6 @@ func TestCreatePoint(t *testing.T) {
 		Bairro:     "BairroTest 30.0",
 		Numero:     30,
 	}
-
 	address, _ := addressServiceTest.CreateAddress(addressDTO)
 
 	pointDTO := dtos.PointCreateDTO{
